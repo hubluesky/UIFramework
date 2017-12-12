@@ -7,15 +7,15 @@ public abstract class Model {
     public abstract string GetStringProperty(string propertyName);
     public abstract Sprite GetSpriteProperty(string propertyName);
 
+    protected void NotifyPropertyChanged(string propertyName) {
+        if (propertyChanged != null)
+            propertyChanged(propertyName);
+    }
+
     public virtual void Initialized() {
         // ExpandoObject expando;
     }
 
     public virtual void Finalized() {
-    }
-
-    protected void NotifyPropertyChanged(string propertyName) {
-        if (propertyChanged != null)
-            propertyChanged(propertyName);
     }
 }

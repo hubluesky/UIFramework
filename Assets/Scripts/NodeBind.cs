@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class NodeBind {
-    private List<NodeBind> childList = new List<NodeBind>();
-    private List<BindWidget> bindList = new List<BindWidget>();
-    private RectTransform transform;
-    private GameObjectEvent gameObjectEvent;
+    protected List<NodeBind> childList = new List<NodeBind>();
+    protected List<BindWidget> bindList = new List<BindWidget>();
+    protected RectTransform transform;
+    protected GameObjectEvent gameObjectEvent;
     public string transformName { get; protected set; }
     public int childCount { get { return childList.Count; } }
 

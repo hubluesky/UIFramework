@@ -22,22 +22,4 @@ public class View {
     public void Hide() {
         transform.gameObject.SetActive(false);
     }
-
-    public virtual void OnAwake() {
-    }
-
-    public virtual void OnStart() {
-    }
-
-    public virtual void OnEnable() {
-    }
-
-    public virtual void OnDisable() {
-    }
-
-    public virtual void OnDestroy() {
-    }
-
-    public virtual void Refresh() {
-    }
 }
