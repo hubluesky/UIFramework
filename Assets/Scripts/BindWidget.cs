@@ -16,6 +16,10 @@ public abstract class BindWidget {
         BindPropertyChanged();
     }
 
+    ~BindWidget() {
+        UnbindPropertyChanged();
+    }
+
     public abstract bool CheckUpdateWidget();
 
     protected abstract void UpdateWidget(Model model, string propertyName, BindWidget widget);

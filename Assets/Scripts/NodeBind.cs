@@ -13,6 +13,11 @@ public class NodeBind {
         this.transformName = transformName;
     }
 
+    public NodeBind this[int index] { 
+        get { return childList[index]; }
+        set { childList[index] = value; }
+    }
+
     public NodeBind CreateChild(string transformName) {
         NodeBind child = new NodeBind(transformName);
         AddChild(child);
@@ -23,12 +28,24 @@ public class NodeBind {
         childList.Add(node);
     }
 
+    public void InsertChild(int index, NodeBind node) {
+        childList.Insert(index, node);
+    }
+
     public void RemoveChild(NodeBind node) {
         childList.Remove(node);
     }
 
     public void RemoveChildAt(int index) {
         childList.RemoveAt(index);
+    }
+
+    public void RemoveChildRange(int index, int count) {
+        childList.RemoveRange(index, count);
+    }
+
+    public void Clear() {
+        childList.Clear();
     }
 
     public void SetTransform(RectTransform transform) {
@@ -41,7 +58,7 @@ public class NodeBind {
         Debug.Log("SetTransform: " + transform.name + " " + transform.gameObject.activeInHierarchy);
     }
 
-    protected void InitChildren() {
+    protected virtual void InitChildren() {
         Debug.Log("InitChildren: " + transform.name);
         foreach (NodeBind nodeBind in childList) {
             Transform child = transform.SearchChild(nodeBind.transformName);
@@ -60,7 +77,7 @@ public class NodeBind {
         }
     }
 
-    protected void RefreshChildren() {
+    protected virtual void RefreshChildren() {
         Debug.Log("RefreshChildren: " + transform.name);
         foreach (BindWidget bindWidget in bindList) {
             if (bindWidget.refresh && bindWidget.CheckUpdateWidget())
