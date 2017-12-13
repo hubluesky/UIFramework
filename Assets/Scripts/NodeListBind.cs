@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class NodeListBind : NodeBind {
     public event System.Action<ElementData, NodeBind> AddElementEvents;
     public System.Func<Transform, int, Transform> GetChild = GetOrCreateChild;
@@ -9,7 +11,7 @@ public class NodeListBind : NodeBind {
         Debug.Log("InitChildren: " + transform.name);
         for (int i = 0; i < childList.Count; i++) {
             Transform child = GetChild(transform, i);
-            nodeBind.SetTransform(child as RectTransform);
+            childList[i].SetTransform(child as RectTransform);
         }
     }
 
@@ -19,7 +21,7 @@ public class NodeListBind : NodeBind {
     public static Transform GetOrCreateChild(Transform parent, int index) {
         if (index < parent.childCount)
             return parent.GetChild(index);
-        return Object.Instans(parent.GetChild(index), parent, false);
+        return Object.Instantiate(parent.GetChild(index), parent, false);
     }
 
     public void BindList(ListData list) {
