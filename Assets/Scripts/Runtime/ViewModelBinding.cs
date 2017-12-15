@@ -4,14 +4,26 @@ using UnityEngine;
 namespace VBM {
     public class ViewModelBinding : MonoBehaviour {
         [SerializeField]
+        private ViewModelBinding parentBinding;
+        [SerializeField]
         private string modelUniqueId;
         [SerializeField]
         private List<PropertyBinding> propertyBindingList = new List<PropertyBinding>();
 
+        public UnityEngine.Events.UnityEvent bindingEvent;
+
         public Model model { get; protected set; }
 
         void Awake() {
-            model = ModelManager.Instance.GetModel(modelUniqueId);
+            if (parentBinding == null) {
+                model = ModelManager.Instance.GetModel(modelUniqueId);
+            } else {
+                if (parentBinding.model == null) {
+                    Debug.LogWarningFormat("Get model {1} failed! {1} parent binding model is null.", modelUniqueId, parentBinding.name);
+                    return;
+                }
+                model = parentBinding.model.GetProperty<Model>(modelUniqueId);
+            }
             if (model == null) {
                 Debug.LogWarningFormat("Get model {0} falied! {1} view bind model failed", modelUniqueId, name);
                 return;
@@ -24,8 +36,8 @@ namespace VBM {
 
         void OnEnable() {
             foreach (PropertyBinding binding in propertyBindingList) {
-                if(!binding.refresh) continue;
-                binding.SetProperty(model.GetProperty(binding.modelPropertyName));
+                if (!binding.refresh) continue;
+                binding.SetProperty(model.GetProperty(binding.propertyName));
             }
         }
 
