@@ -10,12 +10,12 @@ public class Main : MonoBehaviour {
 
     public Canvas canvas;
     private SamplesModel1 model;
-    private View view;
+    // private View view;
 
     public void StartMBV() {
         model = new SamplesModel1();
-        view = new View();
-        model.BindView(view);
+        // view = new View();
+        // model.BindView(view);
         Debug.Log("Create model and bind view");
     }
 
@@ -23,8 +23,8 @@ public class Main : MonoBehaviour {
 		RectTransform ui = Instantiate(uiRoleInfo);
         ui.gameObject.SetActive(false);
         ui.SetParent(canvas.transform, false);
-        view.SetTransform(ui);
-        view.Show();
+        // view.SetTransform(ui);
+        // view.Show();
     }
 
 	public void UpdateData() {

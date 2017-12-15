@@ -8,6 +8,8 @@ namespace VBM {
         [SerializeField]
         private List<PropertyBinding> propertyBindingList = new List<PropertyBinding>();
 
+        public UnityEngine.Events.UnityEvent bindingEvent;
+
         public Model model { get; protected set; }
 
         void Awake() {
