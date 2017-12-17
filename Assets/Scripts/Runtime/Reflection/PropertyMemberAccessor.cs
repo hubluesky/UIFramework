@@ -4,7 +4,7 @@ using System.Reflection.Emit;
 
 namespace VBM.Reflection {
 
-    public sealed class PropertyMemberAccessor : MemberAccessor {
+    public class PropertyMemberAccessor : MemberAccessor {
         protected PropertyInfo propertyInfo;
         public override Type MemberType { get { return propertyInfo.PropertyType; } }
         public override MemberInfo MemberInfo { get { return propertyInfo; } }

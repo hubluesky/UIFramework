@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 
 namespace VBM.Reflection {
-    public sealed class FieldMember : MemberAccessor {
+    public class FieldMember : MemberAccessor {
         protected FieldInfo fieldInfo;
         public override Type MemberType { get { return fieldInfo.FieldType; } }
         public override MemberInfo MemberInfo { get { return fieldInfo; } }

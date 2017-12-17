@@ -1,7 +1,7 @@
 using System.Reflection;
 
 namespace VBM.Reflection {
-    public sealed class PropertyMember : MemberAccessor {
+    public class PropertyMember : MemberAccessor {
         protected PropertyInfo propertyInfo;
         public override System.Type MemberType { get { return propertyInfo.PropertyType; } }
         public override MemberInfo MemberInfo { get { return propertyInfo; } }

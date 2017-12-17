@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 
 namespace VBM.Reflection {
-    public sealed class FieldMemberAccessor : MemberAccessor {
+    public class FieldMemberAccessor : MemberAccessor {
         protected FieldInfo fieldInfo;
         public override Type MemberType { get { return fieldInfo.FieldType; } }
         public override MemberInfo MemberInfo { get { return fieldInfo; } }
@@ -26,7 +26,7 @@ namespace VBM.Reflection {
                 generator.Emit(OpCodes.Box, fieldInfo.FieldType);
             }
             generator.Emit(OpCodes.Ret);
-            getter = (Func<object, object>)method.CreateDelegate(typeof(Func<object, object>));
+            getter = (Func<object, object>) method.CreateDelegate(typeof(Func<object, object>));
         }
         void InitializeSetter(FieldInfo fieldInfo) {
             string methodName = fieldInfo.ReflectedType.FullName + ".set_" + fieldInfo.Name;
@@ -42,7 +42,7 @@ namespace VBM.Reflection {
             }
             generator.Emit(OpCodes.Stfld, fieldInfo);
             generator.Emit(OpCodes.Ret);
-            setter = (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
+            setter = (Action<object, object>) method.CreateDelegate(typeof(Action<object, object>));
         }
     }
 }

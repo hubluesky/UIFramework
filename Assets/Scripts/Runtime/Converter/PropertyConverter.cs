@@ -1,7 +1,7 @@
+using UnityEngine;
+
 namespace VBM {
-    public class PropertyConverter {
-        public virtual object Conver(object value) {
-            return value;
-        }
+    public abstract class PropertyConverter {
+        public abstract object Convert(object value);
     }
 }

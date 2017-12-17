@@ -73,6 +73,7 @@ namespace VBM {
 
         public void Clear() {
             list.Clear();
+            elementCleared();
         }
 
         public int BinarySearch(int index, int count, Model item, IComparer<Model> comparer) {

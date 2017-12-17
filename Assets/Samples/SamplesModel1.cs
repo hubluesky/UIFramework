@@ -19,6 +19,8 @@ public class SamplesModel1 : Model {
     //     content2Bind.BindImage(this, "tab2Icon2", "Image2");
     // }
 
+    public int property1 { get; set; }
+
     public void SetHeadIcon(Sprite sprite) {
         AddVariable("headIcon", sprite);
     }
