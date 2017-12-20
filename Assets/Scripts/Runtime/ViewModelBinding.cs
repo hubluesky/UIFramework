@@ -7,10 +7,10 @@ namespace VBM {
         private ViewModelBinding parentBinding;
         [SerializeField]
         private string modelUniqueId;
-        [SerializeField]
         private List<PropertyBinding> propertyBindingList = new List<PropertyBinding>();
-
+        public List<PropertyBinding> bindingList { get { return propertyBindingList; } }
         public Model model { get; protected set; }
+        public View view { get; set; }
 
         void Awake() {
             if (parentBinding == null) {

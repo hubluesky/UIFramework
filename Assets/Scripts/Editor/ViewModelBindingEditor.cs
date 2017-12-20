@@ -11,14 +11,15 @@ namespace VBMEditor {
     public class ViewModelBindingEditor : Editor {
         private bool switchModelSelected;
 
-        protected void DrawSelectedModel(SerializedProperty modelUniqueId, SerializedProperty propertyBindingList) {
+        protected void DrawSelectedModel(SerializedProperty modelUniqueId, List<PropertyBinding> propertyList) {
             List<System.Type> list = ReflectionUtility.GetClassTypeFromAssembly(typeof(Model));
             string[] array = System.Array.ConvertAll(list.ToArray(), (src) => src.FullName);
             int selected = System.Array.FindIndex(array, (element) => { return element == modelUniqueId.stringValue; });
             int newSelected = EditorGUILayout.Popup(selected, array);
             if (selected != newSelected) {
                 modelUniqueId.stringValue = array[newSelected];
-                propertyBindingList.ClearArray();
+                propertyList.Clear();
+                modelUniqueId.serializedObject.ApplyModifiedProperties();
             }
         }
 
@@ -37,12 +38,11 @@ namespace VBMEditor {
 
             EditorGUILayout.BeginHorizontal();
             SerializedProperty modelUniqueId = serializedObject.FindProperty("modelUniqueId");
-            SerializedProperty propertyList = serializedObject.FindProperty("propertyBindingList");
             EditorGUILayout.PrefixLabel("Model");
             if (switchModelSelected) {
                 EditorGUILayout.PropertyField(modelUniqueId, GUIContent.none, null);
             } else {
-                DrawSelectedModel(modelUniqueId, propertyList);
+                DrawSelectedModel(modelUniqueId, behavior.bindingList);
             }
 
             switchModelSelected = EditorGUILayout.Toggle(switchModelSelected, EditorStyles.radioButton, GUILayout.Width(15f));
@@ -51,7 +51,10 @@ namespace VBMEditor {
             EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(modelUniqueId.stringValue));
             GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
             EditorGUILayout.LabelField("Model Property Binding List", EditorStyles.toolbarButton);
-            DrawPropertyBindingList(propertyList);
+            // DrawPropertyBindingList(behavior.propertyBindingList);
+            EditorGUI.indentLevel++;
+            GeneralEditor.PropertyDrawerMgr.PropertyField(new GeneralEditor.SerializedArrayProperty(behavior.bindingList, "Model Property Binding List", null), new GUIContent("+++++"));
+            EditorGUI.indentLevel--;
             GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
             EditorGUI.EndDisabledGroup();
 
@@ -60,63 +63,67 @@ namespace VBMEditor {
             }
         }
 
-        private void DrawPropertyBindingList(SerializedProperty serializedPropertyList) {
-            int removeIndex = -1;
-            for (int i = 0; i < serializedPropertyList.arraySize; i++) {
-                SerializedProperty childProperty = serializedPropertyList.GetArrayElementAtIndex(i);
-                string name = childProperty.objectReferenceValue != null ? childProperty.objectReferenceValue.GetType().Name : "Unknown";
-                EditorGUI.indentLevel++;
-                EditorGUILayout.BeginVertical(GUI.skin.box);
-                EditorGUILayout.BeginHorizontal();
-                Color oldColor = GUI.backgroundColor;
-                GUI.backgroundColor = Color.green;
-                childProperty.isExpanded = EditorGUILayout.Foldout(childProperty.isExpanded, name, true);
-                GUI.backgroundColor = oldColor;
-
-                GUI.color = Color.green;
-                EditorGUI.BeginDisabledGroup(i <= 0);
-                if (GUILayout.Button(new GUIContent("↑", "Move up"), EditorStyles.miniButtonLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false))) {
-                    serializedPropertyList.MoveArrayElement(i, i - 1);
-                }
-                EditorGUI.EndDisabledGroup();
-
-                EditorGUI.BeginDisabledGroup(i + 1 >= serializedPropertyList.arraySize);
-                if (GUILayout.Button(new GUIContent("↓", "Move down"), EditorStyles.miniButtonMid, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false))) {
-                    serializedPropertyList.MoveArrayElement(i, i + 1);
-                }
-                EditorGUI.EndDisabledGroup();
-
-                GUI.color = Color.red;
-                if (GUILayout.Button(new GUIContent("×", "Delete"), EditorStyles.miniButtonRight, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false))) {
-                    removeIndex = i;
-                }
-                GUI.color = Color.white;
-                EditorGUILayout.EndHorizontal();
-                if (childProperty.isExpanded) {
-                    EditorGUILayout.PropertyField(childProperty);
-                }
-                EditorGUILayout.EndVertical();
-                EditorGUI.indentLevel--;
-            }
-
-            if (removeIndex != -1) {
-                serializedPropertyList.DeleteArrayElementAtIndex(removeIndex);
-                serializedPropertyList.serializedObject.ApplyModifiedProperties();
-            }
-
-            if (GUILayout.Button("Add Property Binding")) {
-                GenericMenu menu = new GenericMenu();
-                List<System.Type> list = ReflectionUtility.GetClassTypeFromAssembly(typeof(PropertyBinding));
-                foreach (System.Type type in list) {
-                    menu.AddItem(new GUIContent(type.FullName), false, () => {
-                        serializedPropertyList.InsertArrayElementAtIndex(serializedPropertyList.arraySize);
-                        SerializedProperty childProperty = serializedPropertyList.GetArrayElementAtIndex(serializedPropertyList.arraySize - 1);
-                        childProperty.objectReferenceValue = ScriptableObject.CreateInstance(type);
-                        serializedObject.ApplyModifiedProperties();
-                    });
-                }
-                menu.ShowAsContext();
-            }
+        static void SwapListItem<T>(List<T> list, int index1, int index2) {
+            var temp = list[index1];
+            list[index1] = list[index2];
+            list[index2] = temp;
         }
+
+        // private void DrawPropertyBindingList(SerializedObject serializedObject, List<PropertyBinding> propertyList) {
+        //     int removeIndex = -1;
+        //     for (int i = 0; i < propertyList.Count; i++) {
+        //         string typename = propertyList[i].GetType().Name;
+        //         EditorGUI.indentLevel++;
+        //         EditorGUILayout.BeginVertical(GUI.skin.box);
+        //         EditorGUILayout.BeginHorizontal();
+        //         Color oldColor = GUI.backgroundColor;
+        //         GUI.backgroundColor = Color.green;
+        //         GUI.backgroundColor = oldColor;
+
+        //         GUI.color = Color.green;
+        //         EditorGUI.BeginDisabledGroup(i <= 0);
+        //         if (GUILayout.Button(new GUIContent("↑", "Move up"), EditorStyles.miniButtonLeft, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false))) {
+        //             SwapListItem(propertyList, i, i - 1);
+        //             serializedObject.ApplyModifiedProperties();
+        //         }
+        //         EditorGUI.EndDisabledGroup();
+
+        //         EditorGUI.BeginDisabledGroup(i + 1 >= propertyList.Count);
+        //         if (GUILayout.Button(new GUIContent("↓", "Move down"), EditorStyles.miniButtonMid, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false))) {
+        //             SwapListItem(propertyList, i, i + 1);
+        //             serializedObject.ApplyModifiedProperties();
+        //         }
+        //         EditorGUI.EndDisabledGroup();
+
+        //         GUI.color = Color.red;
+        //         if (GUILayout.Button(new GUIContent("×", "Delete"), EditorStyles.miniButtonRight, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false))) {
+        //             removeIndex = i;
+        //         }
+        //         GUI.color = Color.white;
+        //         EditorGUILayout.EndHorizontal();
+        //         EditorGUILayout.PropertyField(childProperty);
+        //         EditorGUILayout.EndVertical();
+        //         EditorGUI.indentLevel--;
+        //     }
+
+        //     if (removeIndex != -1) {
+        //         serializedPropertyList.DeleteArrayElementAtIndex(removeIndex);
+        //         serializedPropertyList.serializedObject.ApplyModifiedProperties();
+        //     }
+
+        //     if (GUILayout.Button("Add Property Binding")) {
+        //         GenericMenu menu = new GenericMenu();
+        //         List<System.Type> list = ReflectionUtility.GetClassTypeFromAssembly(typeof(PropertyBinding));
+        //         foreach (System.Type type in list) {
+        //             menu.AddItem(new GUIContent(type.FullName), false, () => {
+        //                 serializedPropertyList.InsertArrayElementAtIndex(serializedPropertyList.arraySize);
+        //                 SerializedProperty childProperty = serializedPropertyList.GetArrayElementAtIndex(serializedPropertyList.arraySize - 1);
+        //                 childProperty.objectReferenceValue = ScriptableObject.CreateInstance(type);
+        //                 serializedObject.ApplyModifiedProperties();
+        //             });
+        //         }
+        //         menu.ShowAsContext();
+        //     }
+        // }
     }
 }

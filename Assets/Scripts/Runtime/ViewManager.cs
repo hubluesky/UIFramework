@@ -1,77 +1,78 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace VBM {
     public class ViewManager : Singleton<ViewManager> {
+        private Stack<View> viewStack = new Stack<View>();
+        private Dictionary<int, Transform> layerMap = new Dictionary<int, Transform>();
         public Canvas rootCanvas { get; set; }
 
-        public static Canvas CreateRootCanvas() {
-            // Create uiroot transform
-            GameObject uiRoot = new GameObject("UIRoot");
-            uiRoot.layer = LayerMask.NameToLayer("UI");
-            uiRoot.AddComponent<RectTransform>();
-            // Create ui camera
-            GameObject uiCamera = new GameObject("UICamera");
-            uiCamera.layer = LayerMask.NameToLayer("UI");
-            uiCamera.transform.SetParent(uiRoot.transform, false);
-            uiCamera.transform.localPosition = new Vector3(0, 0, -10f);
-            Camera camera = uiCamera.AddComponent<Camera>();
-            camera.clearFlags = CameraClearFlags.Depth;
-            camera.orthographic = true;
-            camera.farClipPlane = 200f;
-            camera.cullingMask = 1 << 5;
-            camera.nearClipPlane = -50f;
-            camera.farClipPlane = 50f;
-            uiCamera.AddComponent<AudioListener>();
-            uiCamera.AddComponent<GUILayer>();
-            // Create screen space camera canvas
-            GameObject uiCanvas = new GameObject("RootCanvas");
-            uiCanvas.transform.SetParent(uiRoot.transform, false);
-            Canvas canvas = uiCanvas.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceCamera;
-            canvas.pixelPerfect = true;
-            canvas.worldCamera = camera;
-            uiCanvas.AddComponent<GraphicRaycaster>();
-            CanvasScaler canvasScaler = uiCanvas.AddComponent<CanvasScaler>();
-            canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasScaler.referenceResolution = new Vector2(1280, 720);
-            canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-            canvasScaler.matchWidthOrHeight = 1.0f;
-            // Create event system
-            GameObject uiEventSystem = new GameObject("EventSystem");
-            uiEventSystem.layer = LayerMask.NameToLayer("UI");
-            uiEventSystem.transform.SetParent(uiRoot.transform, false);
-            uiEventSystem.AddComponent<EventSystem>();
-            uiEventSystem.AddComponent<StandaloneInputModule>();
-
-            CreateCavnasLayers(canvas);
-            return canvas;
+        public T CreateView<T>(ViewConfig config) where T : View,
+        new() {
+            T view = new T( /*config*/ );
+            config.CreateAsset((gameObject) => { OnAssetCreate(view, gameObject); });
+            return view;
         }
 
-        public static void CreateCavnasLayers(Canvas canvas) {
-            foreach (Layer layer in System.Enum.GetValues(typeof(Layer))) {
-                GameObject uiLayer = new GameObject(layer.ToString());
-                uiLayer.layer = LayerMask.NameToLayer("UI");
-                uiLayer.transform.SetParent(canvas.transform, false);
+        private void OnAssetCreate(View view, GameObject viewAsset) {
+            ViewModelBinding binding = viewAsset.GetComponent<ViewModelBinding>();
+            binding.view = view;
+            GameObjectEvent objectEvent = viewAsset.AddComponent<GameObjectEvent>();
+            objectEvent.onStartEvent += view.OnCreated;
+            objectEvent.onEnableEvent += view.OnShow;
+            objectEvent.onDisableEvent += view.OnHide;
+            objectEvent.onDestroyEvent += view.OnDestroyed;
+            view.SetViewAsset(viewAsset.transform);
+        }
 
-                RectTransform rectTransform = uiLayer.AddComponent<RectTransform>();
-                rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, 0);
-                rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, 0);
-                rectTransform.anchorMin = Vector2.zero;
-                rectTransform.anchorMax = Vector2.one;
+        public void InitCanvasLayers(Canvas canvas, System.Type layerEnumType) {
+            foreach (var layer in System.Enum.GetValues(layerEnumType)) {
+                GameObject layerObject = CanvasUtility.CreateLayer(canvas.transform, layer.ToString());
+                layerMap.Add((int) layer, layerObject.transform);
             }
         }
 
-        public static T LoadView<T>(GameObject prefab) where T : View, new() {
-            T view = new T();
-            return view;
+        internal void PushStack(View view) {
+            viewStack.Push(view);
         }
 
-        public static T CreateView<T>(GameObject prefab) where T : View, new() {
-            T view = new T();
-            return view;
+        public void ShowView(View view) {
+            int layer = (int) view.config.layer;
+            if (!layerMap.ContainsKey(layer)) {
+                Debug.LogWarning("Show view failed! Have not include layer " + layer);
+                return;
+            }
+
+            Transform transform = layerMap[layer];
+            switch (view.config.showRule) {
+                case ViewShowRule.HideLayer:
+                    HideAllChild(transform);
+                    break;
+                case ViewShowRule.HideLowLayers:
+                    foreach (var entry in layerMap) {
+                        if (entry.Key <= layer)
+                            HideAllChild(entry.Value);
+                    }
+                    break;
+            }
+            view.transform.SetParent(transform, false);
+            view.transform.gameObject.SetActive(true);
+        }
+
+        private void HideAllChild(Transform parent) {
+            for (int i = 0; i < parent.childCount; i++) {
+                Transform child = parent.GetChild(i);
+                child.gameObject.SetActive(false);
+            }
+        }
+
+        public void HideView(View view) {
+            int layer = (int) view.config.layer;
+            if (!layerMap.ContainsKey(layer)) {
+                Debug.LogWarning("Hide view failed! Have not include layer " + layer);
+                return;
+            }
         }
     }
 }
