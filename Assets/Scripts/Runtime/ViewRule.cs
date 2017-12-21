@@ -1,8 +1,7 @@
 namespace VBM {
     public enum ViewShowRule {
         None, // 显示时不作处理
-        HideLayer, // 隐藏相同层其它UI
-        HideLowLayers, // 隐藏所有Layer层低于自己的UI，包括自己Layer层UI
+        HideLayerView, // 隐藏相同层其它UI
     }
 
     public enum ViewHideRule {

@@ -4,74 +4,83 @@ using UnityEngine.UI;
 
 namespace VBM {
     public class ViewManager : Singleton<ViewManager> {
-        private Stack<View> viewStack = new Stack<View>();
-        private Dictionary<int, Transform> layerMap = new Dictionary<int, Transform>();
-        public Canvas rootCanvas { get; set; }
+        struct LayerTransform {
+            public ViewLayer layer;
+            public Transform transform;
+        }
 
-        public T CreateView<T>(ViewConfig config) where T : View,
-        new() {
-            T view = new T( /*config*/ );
-            config.CreateAsset((gameObject) => { OnAssetCreate(view, gameObject); });
+        private Dictionary<ViewLayer, Stack<View>> viewStackMap = new Dictionary<ViewLayer, Stack<View>>();
+        private List<LayerTransform> layerList = new List<LayerTransform>();
+        public Canvas rootCanvas { get; private set; }
+
+        public T CreateView<T>(ViewConfig config) where T : View, new() {
+            T view = new T();
+            view.config = config;
             return view;
         }
 
-        private void OnAssetCreate(View view, GameObject viewAsset) {
-            ViewModelBinding binding = viewAsset.GetComponent<ViewModelBinding>();
-            binding.view = view;
-            GameObjectEvent objectEvent = viewAsset.AddComponent<GameObjectEvent>();
-            objectEvent.onStartEvent += view.OnCreated;
-            objectEvent.onEnableEvent += view.OnShow;
-            objectEvent.onDisableEvent += view.OnHide;
-            objectEvent.onDestroyEvent += view.OnDestroyed;
-            view.SetViewAsset(viewAsset.transform);
+        public void LoadViewAsset(View view) {
+            view.config.LoadAsset(view.SetViewAsset);
         }
 
-        public void InitCanvasLayers(Canvas canvas, System.Type layerEnumType) {
-            foreach (var layer in System.Enum.GetValues(layerEnumType)) {
+        public void InitCanvasLayers(Canvas canvas) {
+            rootCanvas = canvas;
+            foreach (ViewLayer layer in System.Enum.GetValues(typeof(ViewLayer))) {
                 GameObject layerObject = CanvasUtility.CreateLayer(canvas.transform, layer.ToString());
-                layerMap.Add((int) layer, layerObject.transform);
+                layerList.Add(new LayerTransform() { layer = layer, transform = layerObject.transform });
             }
         }
 
-        internal void PushStack(View view) {
-            viewStack.Push(view);
-        }
-
-        public void ShowView(View view) {
-            int layer = (int) view.config.layer;
-            if (!layerMap.ContainsKey(layer)) {
-                Debug.LogWarning("Show view failed! Have not include layer " + layer);
+        internal void ShowView(View view) {
+            int index = layerList.FindIndex((item) => item.layer == view.config.layer);
+            if (index == -1) {
+                Debug.LogWarning("Show view failed! Have not include layer " + view.config.layer);
                 return;
             }
 
-            Transform transform = layerMap[layer];
+            Transform layerTransform = layerList[index].transform;
             switch (view.config.showRule) {
-                case ViewShowRule.HideLayer:
-                    HideAllChild(transform);
-                    break;
-                case ViewShowRule.HideLowLayers:
-                    foreach (var entry in layerMap) {
-                        if (entry.Key <= layer)
-                            HideAllChild(entry.Value);
+                case ViewShowRule.HideLayerView:
+                    for (int i = 0; i < layerTransform.childCount; i++) {
+                        Transform child = layerTransform.GetChild(i);
+                        if (!child.gameObject.activeSelf)
+                            continue;
+                        child.gameObject.SetActive(false);
+                        View childView = child.GetComponent<ViewModelBinding>().view;
+                        if (childView.config.hideRule == ViewHideRule.SaveToStack) {
+                            Stack<View> stack;
+                            if (!viewStackMap.TryGetValue(childView.config.layer, out stack))
+                                stack = new Stack<View>();
+                            stack.Push(childView);
+                        }
                     }
                     break;
             }
-            view.transform.SetParent(transform, false);
+            if (view.transform.parent == layerTransform)
+                view.transform.SetAsLastSibling();
+            else
+                view.transform.SetParent(layerTransform, false);
             view.transform.gameObject.SetActive(true);
         }
 
-        private void HideAllChild(Transform parent) {
-            for (int i = 0; i < parent.childCount; i++) {
-                Transform child = parent.GetChild(i);
-                child.gameObject.SetActive(false);
-            }
-        }
-
-        public void HideView(View view) {
-            int layer = (int) view.config.layer;
-            if (!layerMap.ContainsKey(layer)) {
-                Debug.LogWarning("Hide view failed! Have not include layer " + layer);
+        internal void HideView(View view) {
+            int index = layerList.FindIndex((item) => item.layer == view.config.layer);
+            if (index == -1) {
+                Debug.LogWarning("Show view failed! Have not include layer " + view.config.layer);
                 return;
+            }
+
+            view.transform.gameObject.SetActive(false);
+            if (view.config.showRule == ViewShowRule.HideLayerView) {
+                Stack<View> stack;
+                if (viewStackMap.TryGetValue(view.config.layer, out stack)) {
+                    while (stack.Count > 0) {
+                        View stackView = stack.Pop();
+                        stackView.Show();
+                        if (stackView.config.showRule == ViewShowRule.HideLayerView)
+                            break;
+                    }
+                }
             }
         }
     }

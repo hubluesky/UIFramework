@@ -42,15 +42,7 @@ namespace VBM {
             uiEventSystem.transform.SetParent(uiRoot.transform, false);
             uiEventSystem.AddComponent<EventSystem>();
             uiEventSystem.AddComponent<StandaloneInputModule>();
-
-            CreateCavnasLayers(canvas);
             return canvas;
-        }
-
-        public static void CreateCavnasLayers(Canvas canvas) {
-            foreach (Layer layer in System.Enum.GetValues(typeof(Layer))) {
-                CreateLayer(canvas.transform, layer.ToString());
-            }
         }
 
         public static GameObject CreateLayer(Transform parent, string name) {

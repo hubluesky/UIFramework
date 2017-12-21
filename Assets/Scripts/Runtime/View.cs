@@ -2,26 +2,31 @@ using UnityEngine;
 
 namespace VBM {
     public class View {
-        public readonly ViewConfig config;
+        public ViewConfig config { get; internal set; }
         public Transform transform { get; protected set; }
 
-        public View(ViewConfig config) {
-            this.config = config;
+        public void SetViewAsset(GameObject gameObject) {
+            this.transform = gameObject.transform;
+            ViewModelBinding binding = gameObject.GetComponent<ViewModelBinding>();
+            binding.view = this;
+            GameObjectEvent objectEvent = gameObject.AddComponent<GameObjectEvent>();
+            objectEvent.onStartEvent += OnCreated;
+            objectEvent.onEnableEvent += OnShow;
+            objectEvent.onDisableEvent += OnHide;
+            objectEvent.onDestroyEvent += OnDestroyed;
         }
 
-        public void SetViewAsset(Transform transform) {
-            this.transform = transform;
+        public virtual void Show() {
+            ViewManager.Instance.ShowView(this);
         }
 
-        internal void OnHideView() {
-            OnHide();
-            if (config.hideRule == ViewHideRule.SaveToStack)
-                ViewManager.Instance.PushStack(this);
+        public virtual void Hide() {
+            ViewManager.Instance.HideView(this);
         }
 
-        public void OnCreated() { }
-        public void OnShow() { }
-        public void OnHide() { }
-        public void OnDestroyed() { }
+        public virtual void OnCreated() { }
+        public virtual void OnShow() { }
+        public virtual void OnHide() { }
+        public virtual void OnDestroyed() { }
     }
 }

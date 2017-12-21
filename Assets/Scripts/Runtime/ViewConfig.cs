@@ -9,7 +9,7 @@ namespace VBM {
         public ViewShowRule showRule;
         public ViewHideRule hideRule;
 
-        public void CreateAsset(System.Action<GameObject> completed) {
+        public void LoadAsset(System.Action<GameObject> completed) {
             if (prefab != null)
                 completed(Object.Instantiate(prefab));
         }
