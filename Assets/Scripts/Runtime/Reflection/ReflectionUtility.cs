@@ -4,6 +4,28 @@ using System.Reflection;
 
 namespace VBM.Reflection {
     public static class ReflectionUtility {
+
+        public static void ForeachClassTypeFromAssembly(System.Func<Type, bool> foreachAction) {
+            Assembly[] assemblys = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly assembly in assemblys) {
+                foreach (Type type in assembly.GetExportedTypes()) {
+                    if (!foreachAction(type))
+                        return;
+                }
+            }
+        }
+
+        public static void ForeachSubClassTypeFromAssembly(Type baseType, System.Func<Type, bool> foreachAction) {
+            Assembly[] assemblys = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly assembly in assemblys) {
+                foreach (Type type in assembly.GetExportedTypes()) {
+                    if (type.IsClass && !type.IsAbstract && !type.IsGenericType && baseType.IsAssignableFrom(type))
+                        if (!foreachAction(type))
+                            return;
+                }
+            }
+        }
+
         public static List<Type> GetClassTypeFromAssembly(Type baseType) {
             List<Type> list = new List<Type>();
             Assembly[] assemblys = AppDomain.CurrentDomain.GetAssemblies();

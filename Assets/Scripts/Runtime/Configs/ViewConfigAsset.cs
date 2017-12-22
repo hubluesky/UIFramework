@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace VBM {
-    public class ViewConfigs : ScriptableObject {
+    public class ViewConfigAsset : ScriptableObject {
         [SerializeField]
         private ViewConfig[] viewConfigs;
         public ViewConfig[] configs { get { return viewConfigs; } }

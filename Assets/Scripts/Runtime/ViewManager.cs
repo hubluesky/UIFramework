@@ -3,15 +3,20 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace VBM {
-    public class ViewManager : Singleton<ViewManager> {
+    public sealed class ViewManager : Singleton<ViewManager> {
         struct LayerTransform {
-            public ViewLayer layer;
+            [PropertyToEnumDrawerAttribute]
+            public int layer;
             public Transform transform;
         }
 
-        private Dictionary<ViewLayer, Stack<View>> viewStackMap = new Dictionary<ViewLayer, Stack<View>>();
+        private Dictionary<int, Stack<View>> viewStackMap = new Dictionary<int, Stack<View>>();
         private List<LayerTransform> layerList = new List<LayerTransform>();
         public Canvas rootCanvas { get; private set; }
+
+        public View CreateView(ViewConfig config) {
+            return CreateView<View>(config);
+        }
 
         public T CreateView<T>(ViewConfig config) where T : View, new() {
             T view = new T();
@@ -23,11 +28,11 @@ namespace VBM {
             view.config.LoadAsset(view.SetViewAsset);
         }
 
-        public void InitCanvasLayers(Canvas canvas) {
+        public void InitCanvasLayers(Canvas canvas, System.Type enumType) {
             rootCanvas = canvas;
-            foreach (ViewLayer layer in System.Enum.GetValues(typeof(ViewLayer))) {
+            foreach (var layer in System.Enum.GetValues(enumType)) {
                 GameObject layerObject = CanvasUtility.CreateLayer(canvas.transform, layer.ToString());
-                layerList.Add(new LayerTransform() { layer = layer, transform = layerObject.transform });
+                layerList.Add(new LayerTransform() { layer = (int)layer, transform = layerObject.transform });
             }
         }
 

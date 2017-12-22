@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using VBM;
 
 public class Main : MonoBehaviour {
     public RectTransform uiRoleInfo;
@@ -13,6 +14,12 @@ public class Main : MonoBehaviour {
     // private View view;
 
     public void StartMBV() {
+        ViewConfigAsset configAsset = Resources.Load<ViewConfigAsset>("Configs/ViewConfigAsset");
+        ViewConfigManager.Instance.AddConfigs(configAsset.configs);
+
+        ViewConfig hallConfig = ViewConfigManager.Instance.GetViewConfig(ViewModulesName.Hall.ToString());
+        View hallView = ViewManager.Instance.CreateView(hallConfig);
+
         model = new SamplesModel1();
         // view = new View();
         // model.BindView(view);
@@ -20,14 +27,14 @@ public class Main : MonoBehaviour {
     }
 
     public void ShowRoleInfo() {
-		RectTransform ui = Instantiate(uiRoleInfo);
+        RectTransform ui = Instantiate(uiRoleInfo);
         ui.gameObject.SetActive(false);
         ui.SetParent(canvas.transform, false);
         // view.SetTransform(ui);
         // view.Show();
     }
 
-	public void UpdateData() {
+    public void UpdateData() {
         model.SetHeadIcon(sprite1);
         model.SetUsername("hubluesky");
         model.SetGoldCount(3665);
@@ -38,7 +45,7 @@ public class Main : MonoBehaviour {
         model.SetTab2Icon2(sprite3);
     }
 
-	public void Update2Data() {
+    public void Update2Data() {
         model.SetHeadIcon(sprite3);
         model.SetUsername("abscefs");
         model.SetGoldCount(556689);
@@ -47,5 +54,5 @@ public class Main : MonoBehaviour {
 
         model.SetTab2Icon1(sprite1);
         model.SetTab2Icon2(sprite3);
-	}
+    }
 }

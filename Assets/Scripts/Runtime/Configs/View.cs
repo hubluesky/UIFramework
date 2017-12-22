@@ -5,7 +5,7 @@ namespace VBM {
         public ViewConfig config { get; internal set; }
         public Transform transform { get; protected set; }
 
-        public void SetViewAsset(GameObject gameObject) {
+        public virtual void SetViewAsset(GameObject gameObject) {
             this.transform = gameObject.transform;
             ViewModelBinding binding = gameObject.GetComponent<ViewModelBinding>();
             binding.view = this;
@@ -14,6 +14,11 @@ namespace VBM {
             objectEvent.onEnableEvent += OnShow;
             objectEvent.onDisableEvent += OnHide;
             objectEvent.onDestroyEvent += OnDestroyed;
+        }
+
+        public void DestroyAsset() {
+            Object.Destroy(transform.gameObject);
+            transform = null;
         }
 
         public virtual void Show() {

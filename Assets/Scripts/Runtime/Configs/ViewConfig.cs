@@ -3,9 +3,12 @@ using UnityEngine;
 namespace VBM {
     [System.Serializable]
     public class ViewConfig {
+        [PropertyToEnumDrawerAttribute]
+        public string name;
         public string assetPath;
         public GameObject prefab;
-        public ViewLayer layer;
+        [PropertyToEnumDrawerAttribute]
+        public int layer;
         public ViewShowRule showRule;
         public ViewHideRule hideRule;
 

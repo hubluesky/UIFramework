@@ -5,8 +5,9 @@ using VBM;
 
 namespace VBMEditor {
     public static class ViewConfigsMenu {
+        public const string filename = "ViewConfigAsset.asset";
 
-        [MenuItem("Assets/Create/View Configs")]
+        [MenuItem("Assets/Create/View Config Asset")]
         static void CreateViewConfigs() {
             if (Selection.activeObject == null) {
                 EditorUtility.DisplayDialog("提示", "请选择要创建的路径", "确定");
@@ -18,7 +19,8 @@ namespace VBMEditor {
             if ((fileInfo.Attributes & FileAttributes.Directory) == 0) {
                 assetPath = Path.GetDirectoryName(assetPath);
             }
-            CreateScriptableObjectAsset<ViewConfigs>(assetPath);
+            assetPath = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(assetPath, filename));
+            CreateScriptableObjectAsset<ViewConfigAsset>(assetPath);
         }
 
         public static T CreateScriptableObjectAsset<T>(string assetPath) where T : ScriptableObject {

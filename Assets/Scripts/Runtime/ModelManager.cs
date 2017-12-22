@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace VBM {
-    public class ModelManager : Singleton<ModelManager> {
+    public sealed class ModelManager : Singleton<ModelManager> {
         protected Dictionary<string, Model> modelMap = new Dictionary<string, Model>();
 
         public void RegisterModel<T>(T model) where T : Model {
