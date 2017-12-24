@@ -5,7 +5,7 @@ using VBM;
 
 namespace VBMEditor {
     [CustomPropertyDrawer(typeof(GeneralPropertyConverter))]
-    public class GeneralPropertyConverterDrawer : PropertyDrawer {
+    public class GeneralPropertyConverterDrawer  {
         private System.Type[] generalTypeList;
         private string[] generalStringList;
 
@@ -32,23 +32,23 @@ namespace VBMEditor {
             }
         }
 
-        public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label) {
-            float labelWidth = EditorGUIUtility.labelWidth;
-            EditorGUI.PrefixLabel(new Rect(rect.x, rect.y, labelWidth, rect.height), new GUIContent(property.displayName));
-            string typeName = property.objectReferenceValue.GetType().Name;
-            if (GUI.Button(new Rect(rect.x + labelWidth, rect.y, (rect.width - labelWidth) * 0.6f, rect.height), typeName, EditorStyles.popup)) {
-                PropertyConverterDrawer.SelectedConverterMene(property);
-            }
+        // public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label) {
+        //     float labelWidth = EditorGUIUtility.labelWidth;
+        //     EditorGUI.PrefixLabel(new Rect(rect.x, rect.y, labelWidth, rect.height), new GUIContent(property.displayName));
+        //     string typeName = property.objectReferenceValue.GetType().Name;
+        //     if (GUI.Button(new Rect(rect.x + labelWidth, rect.y, (rect.width - labelWidth) * 0.6f, rect.height), typeName, EditorStyles.popup)) {
+        //         PropertyConverterDrawer.SelectedConverterMene(property);
+        //     }
 
-            SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
-            SerializedProperty typeNameProperty = serializedObject.FindProperty("typeName");
-            int selected = System.Array.FindIndex(generalTypeList, (element) => { return element.AssemblyQualifiedName == typeNameProperty.stringValue; });
-            rect = new Rect(rect.x + labelWidth + (rect.width - labelWidth) * 0.6f, rect.y, (rect.width - labelWidth) * 0.4f, rect.height);
-            int newSelected = EditorGUI.Popup(rect, selected, generalStringList);
-            if (newSelected != selected) {
-                typeNameProperty.stringValue = generalTypeList[newSelected].AssemblyQualifiedName;
-                serializedObject.ApplyModifiedProperties();
-            }
-        }
+        //     SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
+        //     SerializedProperty typeNameProperty = serializedObject.FindProperty("typeName");
+        //     int selected = System.Array.FindIndex(generalTypeList, (element) => { return element.AssemblyQualifiedName == typeNameProperty.stringValue; });
+        //     rect = new Rect(rect.x + labelWidth + (rect.width - labelWidth) * 0.6f, rect.y, (rect.width - labelWidth) * 0.4f, rect.height);
+        //     int newSelected = EditorGUI.Popup(rect, selected, generalStringList);
+        //     if (newSelected != selected) {
+        //         typeNameProperty.stringValue = generalTypeList[newSelected].AssemblyQualifiedName;
+        //         serializedObject.ApplyModifiedProperties();
+        //     }
+        // }
     }
 }

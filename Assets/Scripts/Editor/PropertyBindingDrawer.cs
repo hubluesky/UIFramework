@@ -1,34 +1,21 @@
 using System.Collections.Generic;
+using GeneralEditor;
 using UnityEditor;
 using UnityEngine;
 using VBM;
 using VBM.Reflection;
 
 namespace VBMEditor {
-    [CustomPropertyDrawer(typeof(PropertyBinding), true)]
-    public class PropertyBindingDrawer : PropertyDrawer {
-        private float height;
+    [CustomDrawerAttribute(typeof(PropertyBinding), true)]
+    public class PropertyBindingDrawer : GeneralEditor.PropertyDrawer {
 
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
-            return height;
-        }
-
-        public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label) {
-            height = 0.0f;
-            EditorGUI.BeginProperty(rect, label, property);
-            EditorGUI.PropertyField(rect, property, true);
-            // SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
-            // SerializedProperty iteratorProperty = serializedObject.GetIterator();
-            // EditorGUI.BeginChangeCheck();
-            // iteratorProperty.NextVisible(true);
-            // while (iteratorProperty.NextVisible(false)) {
-            //     EditorGUI.PropertyField(new Rect(rect.x, rect.y + height, rect.width, EditorGUIUtility.singleLineHeight), iteratorProperty);
-            //     height += EditorGUIUtility.singleLineHeight;
-            // }
-            // if (EditorGUI.EndChangeCheck()) {
-            //     serializedObject.ApplyModifiedProperties();
-            // }
-            EditorGUI.EndProperty();
+        public override void OnGUI(GeneralEditor.SerializedProperty property, GUIContent label, params GUILayoutOption[] options) {
+            EditorGUILayout.BeginVertical();
+            var iterProperty = property.GetEnumerator();
+            while (iterProperty.MoveNext()) {
+                GeneralEditor.PropertyDrawerMgr.PropertyField(iterProperty.Current, new GUIContent(iterProperty.Current.DisplayName), options);
+            }
+            EditorGUILayout.EndVertical();
         }
     }
 }

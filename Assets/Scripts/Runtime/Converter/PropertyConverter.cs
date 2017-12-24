@@ -1,7 +1,8 @@
 using UnityEngine;
 
 namespace VBM {
-    public abstract class PropertyConverter {
-        public abstract object Convert(object value);
+    [System.Serializable]
+    public class PropertyConverter {
+        public virtual object Convert(object value) { return value; }
     }
 }

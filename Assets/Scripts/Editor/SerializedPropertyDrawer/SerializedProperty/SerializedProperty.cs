@@ -8,18 +8,19 @@ namespace GeneralEditor {
         protected Dictionary<FieldInfo, SerializedProperty> childPropertys = new Dictionary<FieldInfo, SerializedProperty>();
         protected SerializedProperty parent;
         protected object property;
+        protected System.Type propertyType;
 
         public SerializedProperty(object property, string displayName, SerializedProperty parent) {
             this.parent = parent;
             this.property = property;
             DisplayName = displayName;
-            PropertyType = property.GetType();
+            propertyType = property.GetType();
             IsExpanded = true;
         }
 
         public SerializedProperty(object property, string displayName, System.Type type, FieldInfo fieldInfo, SerializedProperty parent) {
             FieldInfo = fieldInfo;
-            PropertyType = type;
+            propertyType = type;
             this.parent = parent;
             this.property = property;
             DisplayName = displayName;
@@ -109,14 +110,14 @@ namespace GeneralEditor {
             }
             set {
                 property = value;
-                if (ParentProperty != null && FieldInfo != null)
+                if (ParentProperty != null && FieldInfo != null) {
                     FieldInfo.SetValue(ParentProperty.PropertyValue, property);
-                else
+                } else
                     Debug.Log("Set Property value is failed. the parent or field info is null");
             }
         }
 
-        public System.Type PropertyType { get; protected set; }
+        public System.Type PropertyType { get { return property != null ? property.GetType() : propertyType; } }
 
         public virtual bool IsArray { get { return false; } }
 
@@ -137,7 +138,10 @@ namespace GeneralEditor {
         }
 
         public object CreatePropertyValue(System.Type type) {
-            PropertyValue = System.Activator.CreateInstance(type, true);
+            if (type == typeof(string))
+                PropertyValue = string.Empty;
+            else
+                PropertyValue = System.Activator.CreateInstance(type, true);
             return PropertyValue;
         }
 
@@ -149,16 +153,36 @@ namespace GeneralEditor {
         }
 
         public SerializedProperty FindChildProperty(FieldInfo fieldInfo) {
+            if (childPropertys.ContainsKey(fieldInfo))
+                return childPropertys[fieldInfo];
+            return AddChildProperty(fieldInfo);
+        }
+
+        protected SerializedProperty AddChildProperty(FieldInfo fieldInfo) {
             SerializedProperty child;
-            if (!childPropertys.TryGetValue(fieldInfo, out child)) {
-                object childProperty = fieldInfo.GetValue(PropertyValue);
-                if (fieldInfo.FieldType.IsArray || typeof(IList).IsAssignableFrom(fieldInfo.FieldType))
-                    child = new SerializedArrayProperty(childProperty, fieldInfo.Name, fieldInfo.FieldType, fieldInfo, this);
-                else
-                    child = new SerializedProperty(childProperty, fieldInfo.Name, fieldInfo.FieldType, fieldInfo, this);
-                childPropertys.Add(fieldInfo, child);
-            }
+            object childProperty = fieldInfo.GetValue(PropertyValue);
+            if (fieldInfo.FieldType.IsArray || typeof(IList).IsAssignableFrom(fieldInfo.FieldType))
+                child = new SerializedArrayProperty(childProperty, fieldInfo.Name, fieldInfo.FieldType, fieldInfo, this);
+            else
+                child = new SerializedProperty(childProperty, fieldInfo.Name, fieldInfo.FieldType, fieldInfo, this);
+            childPropertys.Add(fieldInfo, child);
             return child;
+        }
+
+        protected List<SerializedProperty> FindAllChildProperty() {
+            if (PropertyType == null) return null;
+            List<SerializedProperty> propertyList = new List<SerializedProperty>();
+            FieldInfo[] fieldInfos = PropertyType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            foreach (FieldInfo fieldInfo in fieldInfos) {
+                if (fieldInfo.MemberType != MemberTypes.Field) continue;
+                if (fieldInfo.IsPublic || System.Attribute.IsDefined(fieldInfo, typeof(SerializeField))) {
+                    if (childPropertys.ContainsKey(fieldInfo))
+                        propertyList.Add(childPropertys[fieldInfo]);
+                    else
+                        propertyList.Add(AddChildProperty(fieldInfo));
+                }
+            }
+            return propertyList;
         }
 
         // Array operation
@@ -177,7 +201,8 @@ namespace GeneralEditor {
         public virtual void MoveArrayElement(int srcIndex, int dstIndex) { }
 
         public IEnumerator<SerializedProperty> GetEnumerator() {
-            return new PropertyEnumerator();
+            List<SerializedProperty> list = FindAllChildProperty();
+            return list.GetEnumerator();
         }
 
         private IEnumerator GetEnumerator1() {
@@ -186,28 +211,6 @@ namespace GeneralEditor {
 
         IEnumerator IEnumerable.GetEnumerator() {
             return GetEnumerator1();
-        }
-
-        public class PropertyEnumerator : IEnumerator<SerializedProperty> {
-            SerializedProperty IEnumerator<SerializedProperty>.Current {
-                get { return null; }
-            }
-
-            private object Current1 { get { 
-                // SerializedProperty current = this.Current;
-                return null; } }
-
-            object IEnumerator.Current { get { return Current1; } }
-
-            void System.IDisposable.Dispose() {
-                // Dispose(true);
-            }
-
-            bool IEnumerator.MoveNext() {
-                return false;
-            }
-
-            void IEnumerator.Reset() { }
         }
     }
 }

@@ -1,14 +1,17 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 namespace VBM {
-    public class ViewModelBinding : MonoBehaviour {
+    public class ViewModelBinding : MonoBehaviour, ISerializationCallbackReceiver {
         [SerializeField]
         private ViewModelBinding parentBinding;
         [SerializeField]
         private string modelUniqueId;
-        private List<PropertyBinding> propertyBindingList = new List<PropertyBinding>();
-        public List<PropertyBinding> bindingList { get { return propertyBindingList; } }
+        [SerializeField, HideInInspector]
+        private byte[] bindingData;
+        public List<PropertyBinding> bindingList { get; private set; }
         public Model model { get; protected set; }
         public View view { get; set; }
 
@@ -27,20 +30,22 @@ namespace VBM {
                 return;
             }
             model.propertyChanged += PropertyChanged;
-            foreach (PropertyBinding binding in propertyBindingList) {
-                binding.refresh = true;
+            if (bindingList != null) {
+                foreach (PropertyBinding binding in bindingList)
+                    binding.refresh = true;
             }
         }
 
         void OnEnable() {
-            foreach (PropertyBinding binding in propertyBindingList) {
+            if (bindingList == null) return;
+            foreach (PropertyBinding binding in bindingList) {
                 if (!binding.refresh) continue;
                 binding.SetProperty(model.GetProperty(binding.propertyName));
             }
         }
 
         private void PropertyChanged(string propertyName, object value) {
-            foreach (PropertyBinding binding in propertyBindingList) {
+            foreach (PropertyBinding binding in bindingList) {
                 if (binding.propertyName == propertyName) {
                     if (isActiveAndEnabled)
                         binding.SetProperty(value);
@@ -51,7 +56,26 @@ namespace VBM {
         }
 
         void OnDestroy() {
-            model.propertyChanged -= PropertyChanged;
+            if (model != null)
+                model.propertyChanged -= PropertyChanged;
+        }
+
+        void ISerializationCallbackReceiver.OnBeforeSerialize() {
+            if (bindingList == null) return;
+            using(MemoryStream stream = new MemoryStream()) {
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(stream, bindingList);
+                bindingData = stream.ToArray();
+            }
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize() {
+            bindingList = new List<PropertyBinding>();
+            if(bindingData == null) return;
+            using(MemoryStream stream = new MemoryStream(bindingData)) {
+                BinaryFormatter formatter = new BinaryFormatter();
+                bindingList = formatter.Deserialize(stream) as List<PropertyBinding>;
+            }
         }
     }
 }

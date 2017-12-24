@@ -1,32 +1,33 @@
 using System.Collections.Generic;
+using GeneralEditor;
 using UnityEditor;
 using UnityEngine;
 using VBM;
 using VBM.Reflection;
 
 namespace VBMEditor {
-    // [CustomPropertyDrawer(typeof(PropertyConverter), true)]
-    public class PropertyConverterDrawer : PropertyDrawer {
+    [GeneralEditor.CustomDrawer(typeof(PropertyConverter), true)]
+    public class PropertyConverterDrawer : GeneralEditor.PropertyDrawer {
 
-        public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label) {
-            float labelWidth = EditorGUIUtility.labelWidth;
-            EditorGUI.PrefixLabel(new Rect(rect.x, rect.y, labelWidth, rect.height), new GUIContent(property.displayName));
-            string typeName = property.objectReferenceValue == null ? null : property.objectReferenceValue.GetType().Name;
-            if (GUI.Button(new Rect(rect.x + labelWidth, rect.y, rect.width - labelWidth, rect.height), typeName, EditorStyles.popup)) {
-                SelectedConverterMene(property);
-            }
-        }
-
-        public static void SelectedConverterMene(SerializedProperty property) {
+        public static void SelectedConverterMene(GeneralEditor.SerializedProperty property) {
             GenericMenu menu = new GenericMenu();
             List<System.Type> list = ReflectionUtility.GetClassTypeFromAssembly(typeof(PropertyConverter));
             foreach (System.Type type in list) {
                 menu.AddItem(new GUIContent(type.FullName), false, () => {
-                    property.objectReferenceValue = ScriptableObject.CreateInstance(type);
-                    property.serializedObject.ApplyModifiedProperties();
+                    property.PropertyValue = System.Activator.CreateInstance(type);
                 });
             }
             menu.ShowAsContext();
+        }
+
+        public override void OnGUI(GeneralEditor.SerializedProperty property, GUIContent label, params GUILayoutOption[] options) {
+            string typeName = property.PropertyType.Name;
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel(label);
+            if (GUILayout.Button(typeName, EditorStyles.popup)) {
+                SelectedConverterMene(property);
+            }
+            EditorGUILayout.EndHorizontal();
         }
     }
 }
