@@ -1,20 +1,35 @@
 using System.Collections.Generic;
 using System.Reflection;
+using GeneralEditor;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using VBM;
 using VBM.Reflection;
+using SerializedProperty = UnityEditor.SerializedProperty;
 
 namespace VBMEditor {
     [CustomEditor(typeof(ViewModelBinding), true), CanEditMultipleObjects]
     public class ViewModelBindingEditor : Editor {
         private bool switchModelSelected;
-        private GeneralEditor.SerializedArrayProperty bindListProperty;
+        private CustomPropertyList bindingList;
 
         void OnEnable() {
             ViewModelBinding behavior = target as ViewModelBinding;
-            bindListProperty = new PropertyBindingArrayDrawer(behavior.bindingList, null, null);
+            SerializedArrayProperty bindListProperty = new SerializedArrayProperty(behavior.bindingList, "Model Property Binding List", null);
+            bindingList = new CustomPropertyList(bindListProperty);
+            bindingList.OnAddCallback = OnAddBindingType;
+        }
+
+        private void OnAddBindingType(GeneralEditor.SerializedProperty property) {
+            List<System.Type> listType = ReflectionUtility.GetClassTypeFromAssembly(typeof(PropertyBinding));
+            GenericMenu menu = new GenericMenu();
+            foreach (System.Type type in listType) {
+                menu.AddItem(new GUIContent(type.FullName), false, () => {
+                    property.CreateArrayElementAtIndex(property.ArraySize, type);
+                });
+            }
+            menu.ShowAsContext();
         }
 
         protected void DrawSelectedModel(SerializedProperty modelUniqueId, List<PropertyBinding> propertyList) {
@@ -57,7 +72,7 @@ namespace VBMEditor {
             EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(modelUniqueId.stringValue));
             GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
             EditorGUI.indentLevel++;
-            GeneralEditor.PropertyDrawerMgr.PropertyField(bindListProperty, new GUIContent("Model Property Binding List"));
+            bindingList.DoLayout();
             EditorGUI.indentLevel--;
             GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
             EditorGUI.EndDisabledGroup();

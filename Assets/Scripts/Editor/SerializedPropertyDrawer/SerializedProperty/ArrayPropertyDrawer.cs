@@ -19,7 +19,7 @@ namespace GeneralEditor {
 
             EditorGUI.BeginDisabledGroup(property.ArraySize == 0);
             if (GUILayout.Button(new GUIContent("Remove", "Remove Last Element"), EditorStyles.miniButton, GUILayout.ExpandWidth(false))) {
-                OnAddButton(property);
+                OnRemoveButton(property);
             }
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
