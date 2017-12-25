@@ -7,33 +7,41 @@ namespace GeneralEditor {
     public class ArrayPropertyDrawer : GeneralEditor.PropertyDrawer {
 
         public override void OnGUI(GeneralEditor.SerializedProperty property, GUIContent label, params GUILayoutOption[] options) {
-            EditorGUILayout.BeginHorizontal(options);
             if (property.PropertyValue == null)
                 property.CreatePropertyValue();
 
-            property.IsExpanded = EditorGUI.Foldout(EditorGUILayout.GetControlRect(), property.IsExpanded, label, true);
+            EditorGUILayout.BeginVertical();
+            EditorGUILayout.BeginHorizontal(options);
+            property.IsExpanded = EditorGUILayout.Foldout(property.IsExpanded, label);
             if (GUILayout.Button(new GUIContent("Add", "Add Element"), EditorStyles.miniButton, GUILayout.ExpandWidth(false))) {
-                property.CreateArrayElementAtIndex(property.ArraySize, null);
+                OnAddButton(property);
             }
 
             EditorGUI.BeginDisabledGroup(property.ArraySize == 0);
             if (GUILayout.Button(new GUIContent("Remove", "Remove Last Element"), EditorStyles.miniButton, GUILayout.ExpandWidth(false))) {
-                property.DeleteArrayElementAtIndex(property.ArraySize - 1);
+                OnAddButton(property);
             }
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.EndHorizontal();
 
             if (property.IsExpanded) {
-                EditorGUI.indentLevel++;
                 for (int i = 0; i < property.ArraySize; i++) {
                     SerializedProperty elementProperty = property.GetArrayElementAtIndex(i);
-                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
                     GUILayout.Space(10.0f);
                     PropertyDrawerMgr.PropertyField(elementProperty, new GUIContent("Element " + i));
                     EditorGUILayout.EndHorizontal();
                 }
-                EditorGUI.indentLevel--;
             }
+            EditorGUILayout.EndVertical();
+        }
+
+        protected virtual void OnAddButton(GeneralEditor.SerializedProperty property) {
+            property.CreateArrayElementAtIndex(property.ArraySize, null);
+        }
+
+        protected virtual void OnRemoveButton(GeneralEditor.SerializedProperty property) {
+            property.DeleteArrayElementAtIndex(property.ArraySize - 1);
         }
     }
 }

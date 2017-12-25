@@ -10,6 +10,12 @@ namespace VBMEditor {
     [CustomEditor(typeof(ViewModelBinding), true), CanEditMultipleObjects]
     public class ViewModelBindingEditor : Editor {
         private bool switchModelSelected;
+        private GeneralEditor.SerializedArrayProperty bindListProperty;
+
+        void OnEnable() {
+            ViewModelBinding behavior = target as ViewModelBinding;
+            bindListProperty = new GeneralEditor.SerializedArrayProperty(behavior.bindingList, null, null);
+        }
 
         protected void DrawSelectedModel(SerializedProperty modelUniqueId, List<PropertyBinding> propertyList) {
             List<System.Type> list = ReflectionUtility.GetClassTypeFromAssembly(typeof(Model));
@@ -50,10 +56,8 @@ namespace VBMEditor {
 
             EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(modelUniqueId.stringValue));
             GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
-            EditorGUILayout.LabelField("Model Property Binding List", EditorStyles.toolbarButton);
-            // DrawPropertyBindingList(behavior.propertyBindingList);
             EditorGUI.indentLevel++;
-            GeneralEditor.PropertyDrawerMgr.PropertyField(new GeneralEditor.SerializedArrayProperty(behavior.bindingList, "Model Property Binding List", null), new GUIContent("+++++"));
+            GeneralEditor.PropertyDrawerMgr.PropertyField(bindListProperty, new GUIContent("Model Property Binding List"));
             EditorGUI.indentLevel--;
             GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
             EditorGUI.EndDisabledGroup();
