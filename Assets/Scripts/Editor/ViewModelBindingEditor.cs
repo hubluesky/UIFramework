@@ -14,7 +14,7 @@ namespace VBMEditor {
 
         void OnEnable() {
             ViewModelBinding behavior = target as ViewModelBinding;
-            bindListProperty = new GeneralEditor.SerializedArrayProperty(behavior.bindingList, null, null);
+            bindListProperty = new PropertyBindingArrayDrawer(behavior.bindingList, null, null);
         }
 
         protected void DrawSelectedModel(SerializedProperty modelUniqueId, List<PropertyBinding> propertyList) {
