@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VBM {
     [System.Serializable]
-    public class PropertyBinding {
+    public class PropertyBinding : ScriptableObject {
         public string propertyName;
         public PropertyConverter converter;
         public bool refresh { get; set; }

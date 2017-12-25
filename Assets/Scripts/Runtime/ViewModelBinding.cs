@@ -4,14 +4,35 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 namespace VBM {
-    public class ViewModelBinding : MonoBehaviour, ISerializationCallbackReceiver {
+    public class ViewModelBinding : MonoBehaviour {
+        [System.Serializable]
+        class PropertiesBinding {
+            public GraphicColorPropertyBinding[] graphicColorArray;
+            public ImagePropertyBinding[] imageSpriteArray;
+            public TextPropertyBinding[] textLabelArray;
+            public ReflectPropertyBinding[] reflectPropertyArray;
+
+            public List<PropertyBinding> InitBindingList() {
+                List<PropertyBinding> list = new List<PropertyBinding>();
+                foreach (PropertyBinding binding in graphicColorArray)
+                    list.Add(binding);
+                foreach (PropertyBinding binding in imageSpriteArray)
+                    list.Add(binding);
+                foreach (PropertyBinding binding in textLabelArray)
+                    list.Add(binding);
+                foreach (PropertyBinding binding in reflectPropertyArray)
+                    list.Add(binding);
+                return list;
+            }
+        }
+
         [SerializeField]
         private ViewModelBinding parentBinding;
         [SerializeField]
         private string modelUniqueId;
-        [SerializeField, HideInInspector]
-        private byte[] bindingData;
-        public List<PropertyBinding> bindingList { get; private set; }
+        [SerializeField]
+        private PropertiesBinding propertiesBinding;
+        private List<PropertyBinding> bindingList;
         public Model model { get; protected set; }
         public View view { get; set; }
 
@@ -30,6 +51,8 @@ namespace VBM {
                 return;
             }
             model.propertyChanged += PropertyChanged;
+            if (propertiesBinding != null)
+                bindingList = propertiesBinding.InitBindingList();
             if (bindingList != null) {
                 foreach (PropertyBinding binding in bindingList)
                     binding.refresh = true;
@@ -58,24 +81,6 @@ namespace VBM {
         void OnDestroy() {
             if (model != null)
                 model.propertyChanged -= PropertyChanged;
-        }
-
-        void ISerializationCallbackReceiver.OnBeforeSerialize() {
-            if (bindingList == null) return;
-            using(MemoryStream stream = new MemoryStream()) {
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(stream, bindingList);
-                bindingData = stream.ToArray();
-            }
-        }
-
-        void ISerializationCallbackReceiver.OnAfterDeserialize() {
-            bindingList = new List<PropertyBinding>();
-            if(bindingData == null) return;
-            using(MemoryStream stream = new MemoryStream(bindingData)) {
-                BinaryFormatter formatter = new BinaryFormatter();
-                bindingList = formatter.Deserialize(stream) as List<PropertyBinding>;
-            }
         }
     }
 }

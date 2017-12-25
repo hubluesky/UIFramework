@@ -1,21 +1,39 @@
 using System.Collections.Generic;
-using GeneralEditor;
 using UnityEditor;
 using UnityEngine;
 using VBM;
 using VBM.Reflection;
 
 namespace VBMEditor {
-    [CustomDrawerAttribute(typeof(PropertyBinding), true)]
-    public class PropertyBindingDrawer : GeneralEditor.PropertyDrawer {
+    [CustomPropertyDrawer(typeof(PropertyBinding), true)]
+    public class PropertyBindingDrawer : PropertyDrawer {
+        private float height;
 
-        public override void OnGUI(GeneralEditor.SerializedProperty property, GUIContent label, params GUILayoutOption[] options) {
-            EditorGUILayout.BeginVertical();
-            var iterProperty = property.GetEnumerator();
-            while (iterProperty.MoveNext()) {
-                GeneralEditor.PropertyDrawerMgr.PropertyField(iterProperty.Current, new GUIContent(iterProperty.Current.DisplayName), options);
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+            if (height == 0 && property.objectReferenceValue != null) {
+                SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
+                SerializedProperty iteratorProperty = serializedObject.GetIterator();
+                iteratorProperty.NextVisible(true);
+                while (iteratorProperty.NextVisible(false)) {
+                    height += EditorGUIUtility.singleLineHeight;
+                }
             }
-            EditorGUILayout.EndVertical();
+            return height;
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
+            EditorGUI.BeginProperty(position, label, property);
+            if (property.objectReferenceValue == null)
+                return;
+            SerializedObject serializedObject = new SerializedObject(property.objectReferenceValue);
+            SerializedProperty iteratorProperty = serializedObject.GetIterator();
+            iteratorProperty.NextVisible(true);
+            height = 0.0f;
+            while (iteratorProperty.NextVisible(false)) {
+                EditorGUI.PropertyField(new Rect(position.x, position.y + height, position.width, EditorGUIUtility.singleLineHeight), iteratorProperty);
+                height += EditorGUIUtility.singleLineHeight;
+            }
+            EditorGUI.EndProperty();
         }
     }
 }
