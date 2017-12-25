@@ -5,7 +5,7 @@ using System.Reflection;
 namespace VBM.Reflection {
     public static class ReflectionUtility {
 
-        public static void ForeachClassTypeFromAssembly(System.Func<Type, bool> foreachAction) {
+        public static void ForeachClassTypeFromAssembly(Func<Type, bool> foreachAction) {
             Assembly[] assemblys = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly assembly in assemblys) {
                 foreach (Type type in assembly.GetExportedTypes()) {
@@ -15,7 +15,7 @@ namespace VBM.Reflection {
             }
         }
 
-        public static void ForeachSubClassTypeFromAssembly(Type baseType, System.Func<Type, bool> foreachAction) {
+        public static void ForeachSubClassTypeFromAssembly(Type baseType, Func<Type, bool> foreachAction) {
             Assembly[] assemblys = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly assembly in assemblys) {
                 foreach (Type type in assembly.GetExportedTypes()) {
@@ -23,6 +23,19 @@ namespace VBM.Reflection {
                         if (!foreachAction(type))
                             return;
                 }
+            }
+        }
+
+        public static void ForeachClassSerialzedFields(Type type, Action<FieldInfo> foreachAction) {
+            foreach (FieldInfo fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)) {
+                if (fieldInfo.MemberType == MemberTypes.Field && fieldInfo.IsPublic || fieldInfo.IsDefined(typeof(UnityEngine.SerializeField), false))
+                    foreachAction(fieldInfo);
+            }
+        }
+
+        public static void ForeachGetClassProperty(Type type, Action<PropertyInfo> foreachAction) {
+            foreach (PropertyInfo propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
+                foreachAction(propertyInfo);
             }
         }
 

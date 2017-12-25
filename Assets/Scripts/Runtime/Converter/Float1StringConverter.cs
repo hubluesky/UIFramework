@@ -1,8 +1,8 @@
 namespace VBM {
     [System.Serializable]
-    public class LevelPropertyConverter : PropertyConverter {
+    public class Float1StringConverter : PropertyConverter {
         public override object Convert(object value) {
-            return string.Format("Lv {0}", value);
+            return string.Format("%.1f", value);
         }
     }
 }
