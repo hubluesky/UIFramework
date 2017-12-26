@@ -6,11 +6,11 @@ namespace VBM {
     public class ViewModelBinding : MonoBehaviour {
         [System.Serializable]
         class PropertiesBinding {
-            public GraphicColorPropertyBinding[] graphicColorArray;
-            public ImagePropertyBinding[] imageSpriteArray;
-            public TextPropertyBinding[] textLabelArray;
-            public ReflectPropertyBinding[] reflectPropertyArray;
-            public ListPropertyBinding[] listPropertyArray;
+            public GraphicColorPropertyBinding[] graphicColorArray = null;
+            public ImagePropertyBinding[] imageSpriteArray = null;
+            public TextPropertyBinding[] textLabelArray = null;
+            public ReflectPropertyBinding[] reflectPropertyArray = null;
+            public ListPropertyBinding[] listPropertyArray = null;
 
             public List<PropertyBinding> InitBindingList() {
                 List<PropertyBinding> list = new List<PropertyBinding>();

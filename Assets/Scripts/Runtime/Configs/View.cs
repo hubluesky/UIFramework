@@ -6,6 +6,7 @@ namespace VBM {
         public Transform transform { get; protected set; }
 
         public virtual void SetViewAsset(GameObject gameObject) {
+            gameObject.name = config.name;
             this.transform = gameObject.transform;
             ViewModelBinding binding = gameObject.GetComponent<ViewModelBinding>();
             binding.view = this;

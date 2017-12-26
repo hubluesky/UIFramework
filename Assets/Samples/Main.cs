@@ -28,8 +28,7 @@ public class Main : MonoBehaviour {
 
     public void ShowRoleInfo() {
         View view = ViewManager.Instance.GetView(ViewModulesName.RoleInfo.ToString());
-        if (view.transform == null)
-            ViewManager.Instance.LoadViewAsset(view);
+        view.Show();
     }
 
     public void UpdateRoleInfoData() {
@@ -58,8 +57,7 @@ public class Main : MonoBehaviour {
 
     public void ShowRanking() {
         View view = ViewManager.Instance.GetView(ViewModulesName.Ranking.ToString());
-        if (view.transform == null)
-            ViewManager.Instance.LoadViewAsset(view);
+        view.Show();
     }
 
     public void UpdateRankData() {
