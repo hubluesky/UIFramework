@@ -9,6 +9,7 @@ namespace VBM {
             public GraphicColorPropertyBinding[] graphicColorArray = null;
             public ImagePropertyBinding[] imageSpriteArray = null;
             public TextPropertyBinding[] textLabelArray = null;
+            public TogglePropertyBinding[] toggleIsOnArray = null;
             public ReflectPropertyBinding[] reflectPropertyArray = null;
             public ListPropertyBinding[] listPropertyArray = null;
 
@@ -19,6 +20,8 @@ namespace VBM {
                 foreach (PropertyBinding binding in imageSpriteArray)
                     list.Add(binding);
                 foreach (PropertyBinding binding in textLabelArray)
+                    list.Add(binding);
+                foreach (PropertyBinding binding in toggleIsOnArray)
                     list.Add(binding);
                 foreach (PropertyBinding binding in reflectPropertyArray)
                     list.Add(binding);

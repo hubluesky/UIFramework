@@ -8,7 +8,6 @@ namespace VBM {
 
         public override void OnPropertyChange(object value) {
             component.sprite = value as Sprite;
-            Debug.Log(component + " " + value);
         }
     }
 }
