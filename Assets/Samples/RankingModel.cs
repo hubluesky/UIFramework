@@ -1,7 +1,7 @@
 using UnityEngine;
 using VBM;
 
-public class SamplesModel2 : DictionaryModel {
+public class RankingModel : DictionaryModel {
     public int updateTime {
         get { return GetProperty<int>("updateTime"); }
         set { SetProperty("updateTime", value); }

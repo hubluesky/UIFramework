@@ -2,7 +2,7 @@
 using UnityEngine;
 using VBM;
 
-public class SamplesModel1 : DictionaryModel {
+public class RoleInfoModel : DictionaryModel {
 
     public Sprite headIcon {
         get { return GetProperty<Sprite>("headIcon"); }

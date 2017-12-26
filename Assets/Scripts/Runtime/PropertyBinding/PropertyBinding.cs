@@ -5,7 +5,7 @@ namespace VBM {
         public string propertyName;
         public string converterType;
         public PropertyConverter converter { get; set; }
-        public bool isClean { get; set; }
+        public bool refresh { get; set; }
 
         public void SetProperty(object value) {
             OnPropertyChange(value != null && converter != null ? converter.Convert(value) : value);
@@ -13,10 +13,10 @@ namespace VBM {
 
         public abstract void OnPropertyChange(object value);
 
-        void ISerializationCallbackReceiver.OnBeforeSerialize() {
+        public void OnBeforeSerialize() {
         }
 
-        void ISerializationCallbackReceiver.OnAfterDeserialize() {
+        public void OnAfterDeserialize() {
             if (!string.IsNullOrEmpty(converterType)) {
                 System.Type type = System.Type.GetType(converterType);
                 if (type == null)

@@ -29,7 +29,10 @@ namespace VBMEditor {
         }
 
         public override void OnInspectorGUI() {
+            EditorGUI.BeginChangeCheck();
             list.DoLayoutList();
+            if (EditorGUI.EndChangeCheck())
+                serializedObject.ApplyModifiedProperties();
         }
     }
 }

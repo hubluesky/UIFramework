@@ -39,34 +39,54 @@ namespace VBM {
         public View view { get; set; }
 
         void Awake() {
-            if (parentBinding == null) {
-                model = ModelManager.Instance.GetModel(modelUniqueId);
-            } else {
-                if (parentBinding.model == null) {
-                    Debug.LogWarningFormat("Get model {1} failed! {1} parent binding model is null.", modelUniqueId, parentBinding.name);
-                    return;
-                }
-                model = parentBinding.model.GetProperty<Model>(modelUniqueId);
-            }
-            if (model == null) {
-                Debug.LogWarningFormat("Get model {0} falied! {1} view bind model failed", modelUniqueId, name);
-                return;
-            }
-            model.propertyChanged += PropertyChanged;
             if (propertiesBinding != null)
                 bindingList = propertiesBinding.InitBindingList();
         }
 
+        void Start() {
+            if (model == null) {
+                if (parentBinding == null) {
+                    model = ModelManager.Instance.GetModel(modelUniqueId);
+                } else {
+                    if (parentBinding.model == null) {
+                        Debug.LogWarningFormat("Get model {1} failed! {1} parent binding model is null.", modelUniqueId, parentBinding.name);
+                        return;
+                    }
+                    model = parentBinding.model.GetProperty<Model>(modelUniqueId);
+                }
+                if (model == null) {
+                    Debug.LogWarningFormat("Get model {0} falied! {1} view bind model failed", modelUniqueId, name);
+                    return;
+                }
+
+                SetModel(model);
+            }
+        }
+
         public void SetModel(Model model) {
-            
+            if (this.model != null)
+                this.model.propertyChanged -= PropertyChanged;
+            model.propertyChanged += PropertyChanged;
+            this.model = model;
+
+            foreach (PropertyBinding binding in bindingList) {
+                binding.refresh = true;
+            }
+
+            if (isActiveAndEnabled)
+                RefreshBindingPropertys();
         }
 
         void OnEnable() {
-            if (bindingList == null) return;
+            RefreshBindingPropertys();
+        }
+
+        void RefreshBindingPropertys() {
+            if (bindingList == null || model == null) return;
             foreach (PropertyBinding binding in bindingList) {
-                if (binding.isClean) continue;
+                if (!binding.refresh) continue;
                 binding.SetProperty(model.GetProperty(binding.propertyName));
-                binding.isClean = true;
+                binding.refresh = false;
             }
         }
 
@@ -75,9 +95,9 @@ namespace VBM {
                 if (binding.propertyName == propertyName) {
                     if (isActiveAndEnabled) {
                         binding.SetProperty(value);
-                        binding.isClean = true;
+                        binding.refresh = false;
                     } else {
-                        binding.isClean = false;
+                        binding.refresh = true;
                     }
                 }
             }

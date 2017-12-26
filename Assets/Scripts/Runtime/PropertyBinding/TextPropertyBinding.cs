@@ -7,6 +7,7 @@ namespace VBM {
 
         public override void OnPropertyChange(object value) {
             component.text = value as string;
+            UnityEngine.Debug.Log(component + " " + value);
         }
     }
 }

@@ -7,25 +7,19 @@ namespace VBM {
         public ViewModelBinding componentElement;
         protected ListModel listModel;
 
-        public ListPropertyBinding() {
-                if (componentList != null)
-                    ElementCleared();
-            }
-
         ~ListPropertyBinding() {
-                if (listModel != null)
-                    UnbindList(listModel);
+            if (listModel != null)
+                UnbindList(listModel);
         }
 
         public override void OnPropertyChange(object value) {
-            if (listModel != null) {
-                ElementCleared();
+            ElementCleared();
+            if (listModel != null)
                 UnbindList(listModel);
-            } else {
-                listModel = value as ListModel;
-                if (listModel != null)
-                    BindList(listModel);
-            }
+                
+            listModel = value as ListModel;
+            if (listModel != null)
+                BindList(listModel);
         }
 
         protected virtual void BindList(object value) {
@@ -48,10 +42,10 @@ namespace VBM {
             Transform child;
             if (listModel.Count <= componentList.childCount) {
                 child = componentList.GetChild(listModel.Count - 1);
-                child.gameObject.SetActive(true);
             } else {
                 child = Object.Instantiate(componentElement.transform, Vector3.zero, Quaternion.identity, componentList);
             }
+            child.gameObject.SetActive(true);
             ViewModelBinding binding = child.GetComponent<ViewModelBinding>();
             binding.SetModel(model);
             return child;
@@ -67,7 +61,7 @@ namespace VBM {
         }
 
         protected void ElementRemoved(int index) {
-            Transform child = componentList.GetChild(index);;
+            Transform child = componentList.GetChild(index); ;
             child.SetAsLastSibling();
             child.gameObject.SetActive(false);
         }

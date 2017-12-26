@@ -13,25 +13,29 @@ namespace VBM {
 
         public int Count { get { return list.Count; } }
 
-        public Model this [int index] {
+        public Model this[int index] {
             get { return list[index]; }
             set { list[index] = value; }
         }
 
         public void Add(Model item) {
             list.Add(item);
-            elementAdded(item);
+            if (elementAdded != null)
+                elementAdded(item);
         }
 
         public void AddRange(IEnumerable<Model> collection) {
             list.AddRange(collection);
-            foreach (Model item in collection)
-                elementAdded(item);
+            if (elementAdded != null) {
+                foreach (Model item in collection)
+                    elementAdded(item);
+            }
         }
 
         public void Insert(int index, Model item) {
             list.Insert(index, item);
-            elementInserted(index, item);
+            if (elementInserted != null)
+                elementInserted(index, item);
         }
 
         public bool Remove(Model item) {
@@ -45,12 +49,14 @@ namespace VBM {
 
         public void RemoveAt(int index) {
             list.RemoveAt(index);
-            elementRemoved(index);
+            if (elementRemoved != null)
+                elementRemoved(index);
         }
 
         public void RemoveRange(int index, int count) {
             list.RemoveRange(index, count);
-            elementRemovRanged(index, count);
+            if (elementRemovRanged != null)
+                elementRemovRanged(index, count);
         }
 
         public void Sort(int index, int count, IComparer<Model> comparer) {
@@ -75,7 +81,8 @@ namespace VBM {
 
         public void Clear() {
             list.Clear();
-            elementCleared();
+            if (elementCleared != null)
+                elementCleared();
         }
 
         public int BinarySearch(int index, int count, Model item, IComparer<Model> comparer) {
