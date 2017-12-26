@@ -9,7 +9,7 @@ namespace VBM {
             public int layer;
             public Transform transform;
         }
-
+        private Dictionary<string, View> viewMap = new Dictionary<string, View>();
         private Dictionary<int, Stack<View>> viewStackMap = new Dictionary<int, Stack<View>>();
         private List<LayerTransform> layerList = new List<LayerTransform>();
         public Canvas rootCanvas { get; private set; }
@@ -18,14 +18,33 @@ namespace VBM {
             return CreateView<View>(config);
         }
 
+        public View CreateView(string uniqueId, ViewConfig config) {
+            return CreateView<View>(uniqueId, config);
+        }
+
         public T CreateView<T>(ViewConfig config) where T : View, new() {
+            return CreateView<T>(config.name, config);
+        }
+
+        public T CreateView<T>(string uniqueId, ViewConfig config) where T : View, new() {
+            if (viewMap.ContainsKey(uniqueId)) {
+                Debug.LogError("Create view failed! The uniqueId had contains" + uniqueId);
+                return null;
+            }
             T view = new T();
             view.config = config;
+            viewMap.Add(uniqueId, view);
             return view;
         }
 
         public void LoadViewAsset(View view) {
             view.config.LoadAsset(view.SetViewAsset);
+        }
+
+        public View GetView(string uniqueId) {
+            View view;
+            viewMap.TryGetValue(uniqueId, out view);
+            return view;
         }
 
         public void InitCanvasLayers(Canvas canvas, System.Type enumType) {

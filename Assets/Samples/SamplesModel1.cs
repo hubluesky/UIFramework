@@ -2,58 +2,40 @@
 using UnityEngine;
 using VBM;
 
-public class SamplesModel1 : Model {
-    private Dictionary<string, object> variableMap = new Dictionary<string, object>();
+public class SamplesModel1 : DictionaryModel {
 
-    // public void BindView(View view) {
-    //     view.rootNodeBind.BindImage(this, "headIcon", "HeadImage");
-    //     view.rootNodeBind.BindText(this, "username", "UsernameText");
-    //     view.rootNodeBind.BindText(this, "goldCount", "GoldText");
-
-    //     NodeBind content1Bind = view.rootNodeBind.CreateChild("Content1");
-    //     content1Bind.BindText(this, "tab1Text1", "Text1");
-    //     content1Bind.BindText(this, "tab1Text2", "Text2");
-
-    //     NodeBind content2Bind = view.rootNodeBind.CreateChild("Content2");
-    //     content2Bind.BindImage(this, "tab2Icon1", "Image1");
-    //     content2Bind.BindImage(this, "tab2Icon2", "Image2");
-    // }
-
-    public int property1 { get; set; }
-
-    public void SetHeadIcon(Sprite sprite) {
-        AddVariable("headIcon", sprite);
-    }
-    public void SetUsername(string name) {
-        AddVariable("username", name);
-    }
-    public void SetGoldCount(int count) {
-        AddVariable("goldCount", count);
+    public Sprite headIcon {
+        get { return GetProperty<Sprite>("headIcon"); }
+        set { SetProperty("headIcon", value); }
     }
 
-    public void SetTab1Text1(string text) {
-        AddVariable("tab1Text1", text);
+    public string username {
+        get { return GetProperty<string>("username"); }
+        set { SetProperty("username", value); }
+    }
+    
+    public int goldCount {
+        get { return GetProperty<int>("goldCount"); }
+        set { SetProperty("goldCount", value); }
     }
 
-    public void SetTab1Text2(string text) {
-        AddVariable("tab1Text2", text);
+    public string tab1Text1 {
+        get { return GetProperty<string>("tab1Text1"); }
+        set { SetProperty("tab1Text1", value); }
     }
 
-    public void SetTab2Icon1(Sprite sprite) {
-        AddVariable("tab2Icon1", sprite);
+    public string tab1Text2 {
+        get { return GetProperty<string>("tab1Text2"); }
+        set { SetProperty("tab1Text2", value); }
     }
 
-    public void SetTab2Icon2(Sprite sprite) {
-        AddVariable("tab2Icon2", sprite);
+    public Sprite tab2Icon1 {
+        get { return GetProperty<Sprite>("tab2Icon1"); }
+        set { SetProperty("tab2Icon1", value); }
     }
 
-    protected void AddVariable(string key, object value) {
-        if (variableMap.ContainsKey(key)) {
-            if (variableMap[key].Equals(value))
-                return;
-            variableMap[key] = value;
-        } else {
-            variableMap.Add(key, value);
-        }
+    public Sprite tab2Icon2 {
+        get { return GetProperty<Sprite>("tab2Icon2"); }
+        set { SetProperty("tab2Icon2", value); }
     }
 }

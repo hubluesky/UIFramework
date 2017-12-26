@@ -2,8 +2,13 @@ using UnityEngine;
 
 namespace VBM {
     public class TransientView : View {
+        public bool hideDestroyAsset { get; set; }
+
         public override void Show() {
-            ViewManager.Instance.LoadViewAsset(this);
+            if (transform == null)
+                ViewManager.Instance.LoadViewAsset(this);
+            else
+                base.Show();
         }
 
         public override void SetViewAsset(GameObject gameObject) {
@@ -13,7 +18,8 @@ namespace VBM {
 
         public override void Hide() {
             base.Hide();
-            DestroyAsset();
+            if (hideDestroyAsset)
+                DestroyAsset();
         }
     }
 }

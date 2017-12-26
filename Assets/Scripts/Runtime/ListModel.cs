@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace VBM {
     public class ListModel {
-        public event System.Action<Model, string> elementPropertyChanged;
         public event System.Action<Model> elementAdded;
         public event System.Action<int, Model> elementInserted;
         public event System.Action<int> elementRemoved;

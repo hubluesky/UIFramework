@@ -53,27 +53,26 @@ namespace VBM {
             model.propertyChanged += PropertyChanged;
             if (propertiesBinding != null)
                 bindingList = propertiesBinding.InitBindingList();
-            if (bindingList != null) {
-                foreach (PropertyBinding binding in bindingList)
-                    binding.refresh = true;
-            }
         }
 
         void OnEnable() {
             if (bindingList == null) return;
             foreach (PropertyBinding binding in bindingList) {
-                if (!binding.refresh) continue;
+                if (binding.isClean) continue;
                 binding.SetProperty(model.GetProperty(binding.propertyName));
+                binding.isClean = true;
             }
         }
 
         private void PropertyChanged(string propertyName, object value) {
             foreach (PropertyBinding binding in bindingList) {
                 if (binding.propertyName == propertyName) {
-                    if (isActiveAndEnabled)
+                    if (isActiveAndEnabled) {
                         binding.SetProperty(value);
-                    else
-                        binding.refresh = true;
+                        binding.isClean = true;
+                    } else {
+                        binding.isClean = false;
+                    }
                 }
             }
         }

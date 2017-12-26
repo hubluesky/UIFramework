@@ -3,7 +3,17 @@ using UnityEngine;
 
 namespace VBM {
     public sealed class ModelManager : Singleton<ModelManager> {
-        protected Dictionary<string, Model> modelMap = new Dictionary<string, Model>();
+        private Dictionary<string, Model> modelMap = new Dictionary<string, Model>();
+
+        public T CreateModel<T>() where T : Model, new() {
+            return CreateModel<T>(typeof(T).Name);
+        }
+
+        public T CreateModel<T>(string uniqueId) where T : Model, new() {
+            T model = new T();
+            RegisterModel(uniqueId, model);
+            return model;
+        }
 
         public void RegisterModel<T>(T model) where T : Model {
             RegisterModel(typeof(T).Name, model);
@@ -26,9 +36,11 @@ namespace VBM {
         }
 
         public T GetModel<T>() where T : Model {
-            Model model;
-            modelMap.TryGetValue(typeof(T).Name, out model);
-            return model as T;
+            return GetModel(typeof(T).Name) as T;
+        }
+
+        public T GetModel<T>(string uniqueId) where T : Model {
+            return GetModel(uniqueId) as T;
         }
 
         public Model GetModel(string uniqueId) {
