@@ -8,7 +8,10 @@ namespace VBM {
         public event System.Action<int> elementRemoved;
         public event System.Action<int, int> elementRemovRanged;
         public event System.Action elementCleared;
+        public event System.Action<int, int> elementWraped;
         protected List<Model> list = new List<Model>();
+
+        public int Count { get { return list.Count; } }
 
         public Model this [int index] {
             get { return list[index]; }

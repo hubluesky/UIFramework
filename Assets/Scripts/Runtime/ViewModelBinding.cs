@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 namespace VBM {
@@ -53,6 +52,10 @@ namespace VBM {
             model.propertyChanged += PropertyChanged;
             if (propertiesBinding != null)
                 bindingList = propertiesBinding.InitBindingList();
+        }
+
+        public void SetModel(Model model) {
+            
         }
 
         void OnEnable() {
