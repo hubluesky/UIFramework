@@ -10,6 +10,7 @@ namespace VBM {
             public ImagePropertyBinding[] imageSpriteArray;
             public TextPropertyBinding[] textLabelArray;
             public ReflectPropertyBinding[] reflectPropertyArray;
+            public ListPropertyBinding[] listPropertyArray;
 
             public List<PropertyBinding> InitBindingList() {
                 List<PropertyBinding> list = new List<PropertyBinding>();
@@ -20,6 +21,8 @@ namespace VBM {
                 foreach (PropertyBinding binding in textLabelArray)
                     list.Add(binding);
                 foreach (PropertyBinding binding in reflectPropertyArray)
+                    list.Add(binding);
+                foreach (PropertyBinding binding in listPropertyArray)
                     list.Add(binding);
                 return list;
             }

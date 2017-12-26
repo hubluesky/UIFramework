@@ -89,9 +89,10 @@ namespace VBMEditor {
                 EditorGUILayout.BeginHorizontal();
                 Color contentColor = GUI.contentColor;
                 GUI.contentColor = Color.cyan;
-                EditorGUILayout.LabelField("Text Binding " + i, EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Property Binding " + i, EditorStyles.boldLabel);
                 if (GUILayout.Button(new GUIContent("X", "Remove Property Binding"), EditorStyles.miniButton, GUILayout.Width(25))) {
                     bindingList.DeleteArrayElementAtIndex(i);
+                    break;
                 }
                 GUI.contentColor = contentColor;
                 EditorGUILayout.EndHorizontal();

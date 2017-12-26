@@ -8,7 +8,13 @@ namespace VBM {
         protected ListModel listModel;
 
         public ListPropertyBinding() {
-            ElementCleared();
+                if (componentList != null)
+                    ElementCleared();
+            }
+
+        ~ListPropertyBinding() {
+                if (listModel != null)
+                    UnbindList(listModel);
         }
 
         public override void OnPropertyChange(object value) {
@@ -61,7 +67,7 @@ namespace VBM {
         }
 
         protected void ElementRemoved(int index) {
-            Transform child = componentList.GetChild(index); ;
+            Transform child = componentList.GetChild(index);;
             child.SetAsLastSibling();
             child.gameObject.SetActive(false);
         }

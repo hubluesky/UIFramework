@@ -21,6 +21,10 @@ namespace VBM {
             transform = null;
         }
 
+        public bool IsShowing() {
+            return transform != null && transform.gameObject.activeSelf;
+        }
+
         public virtual void Show() {
             ViewManager.Instance.ShowView(this);
         }

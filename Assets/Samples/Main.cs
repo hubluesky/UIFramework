@@ -12,6 +12,7 @@ public class Main : MonoBehaviour {
 
     public void StartMBV() {
         ModelManager.Instance.CreateModel<SamplesModel1>();
+        ModelManager.Instance.CreateModel<SamplesModel2>();
 
         ViewManager.Instance.InitCanvasLayers(canvas, typeof(ViewLayer));
 
