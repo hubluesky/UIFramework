@@ -3,6 +3,8 @@ using UnityEngine;
 using VBM;
 
 public class RoleInfoModel : DictionaryModel {
+    public int testInt;
+    public static bool testBool;
 
     public Sprite headIcon {
         get { return GetProperty<Sprite>("headIcon"); }
@@ -13,7 +15,7 @@ public class RoleInfoModel : DictionaryModel {
         get { return GetProperty<string>("username"); }
         set { SetProperty("username", value); }
     }
-    
+
     public int goldCount {
         get { return GetProperty<int>("goldCount"); }
         set { SetProperty("goldCount", value); }
@@ -37,5 +39,9 @@ public class RoleInfoModel : DictionaryModel {
     public Sprite tab2Icon2 {
         get { return GetProperty<Sprite>("tab2Icon2"); }
         set { SetProperty("tab2Icon2", value); }
+    }
+
+    public void AddFriend() {
+        Debug.Log("Add friend function.");
     }
 }

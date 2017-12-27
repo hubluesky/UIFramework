@@ -9,17 +9,23 @@ using VBM.Reflection;
 namespace VBMEditor {
     [CustomEditor(typeof(ViewModelBinding), true), CanEditMultipleObjects]
     public class ViewModelBindingEditor : Editor {
+        public static readonly List<System.Type> modelTypeList;
+        public static readonly string[] modelNames;
+
         private const string expandStatusText = " Click Expand";
         private const string collapseStatusText = " Click Collapse";
         private bool switchModelSelected;
 
+        static ViewModelBindingEditor() {
+            modelTypeList = ReflectionUtility.GetClassTypeFromAssembly(typeof(Model));
+            modelNames = System.Array.ConvertAll(modelTypeList.ToArray(), (src) => src.FullName);
+        }
+
         protected void DrawSelectedModel(SerializedProperty modelUniqueId) {
-            List<System.Type> list = ReflectionUtility.GetClassTypeFromAssembly(typeof(Model));
-            string[] array = System.Array.ConvertAll(list.ToArray(), (src) => src.FullName);
-            int selected = System.Array.FindIndex(array, (element) => { return element == modelUniqueId.stringValue; });
-            int newSelected = EditorGUILayout.Popup(selected, array);
+            int selected = System.Array.FindIndex(modelNames, (element) => { return element == modelUniqueId.stringValue; });
+            int newSelected = EditorGUILayout.Popup(selected, modelNames);
             if (selected != newSelected) {
-                modelUniqueId.stringValue = array[newSelected];
+                modelUniqueId.stringValue = modelNames[newSelected];
             }
         }
 
@@ -60,12 +66,6 @@ namespace VBMEditor {
             if (EditorGUI.EndChangeCheck()) {
                 serializedObject.ApplyModifiedProperties();
             }
-        }
-
-        static void SwapListItem<T>(List<T> list, int index1, int index2) {
-            var temp = list[index1];
-            list[index1] = list[index2];
-            list[index2] = temp;
         }
 
         private void DrawPropertyBindingList(SerializedProperty bindingList) {

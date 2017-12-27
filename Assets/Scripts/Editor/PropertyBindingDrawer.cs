@@ -33,12 +33,11 @@ namespace VBMEditor {
                 EditorGUI.PropertyField(rectContent, property);
             } else {
                 SerializedProperty modelUniqueId = property.serializedObject.FindProperty("modelUniqueId");
-                List<System.Type> list = ReflectionUtility.GetClassTypeFromAssembly(typeof(Model));
-                int selected = list.FindIndex((element) => { return element.FullName == modelUniqueId.stringValue; });
+                int selected = System.Array.FindIndex(ViewModelBindingEditor.modelNames, (element) => { return element == modelUniqueId.stringValue; });
                 string[] fieldNames;
                 if (selected != -1) {
                     List<string> propertyList = new List<string>();
-                    ReflectionUtility.ForeachGetClassProperty(list[selected], (propertyInfo) => {
+                    ReflectionUtility.ForeachGetClassProperty(ViewModelBindingEditor.modelTypeList[selected], (propertyInfo) => {
                         if (propertyInfo.CanRead)
                             propertyList.Add(propertyInfo.Name);
                     });

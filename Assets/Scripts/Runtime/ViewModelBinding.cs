@@ -40,6 +40,7 @@ namespace VBM {
         private List<PropertyBinding> bindingList;
         public Model model { get; protected set; }
         public View view { get; set; }
+        public string modelId { get { return modelUniqueId; } }
 
         void Awake() {
             if (propertiesBinding != null)
