@@ -6,27 +6,33 @@
 
 ## 设计理念
 * View Binding Mode（原谅我粗暴的起了这个名字，简称VBM）就是从View上面，使用Bind功能，去BindModel，这所以用这种模式是来源于一个同事给我演示的MVVM功能，所以我才写了这个VBM，之所以从View上面来绑定Model，这要感谢Unity强大的编辑器，可以在编辑上拖拖两下，就把功能给做了，所以VBM就是在unity上编辑一个UI的Prefab，然后在这个Prefab上增加`ViewBindingModel`，然后就可以选择Model进行属性绑定，整个绑定过程全编辑器，当然，前提你需要定义一个自己的Model，继承自VBM`Model`，然后添加`Property`属性，这样在`ViewBindingModel`上就可以反射出这个Model的属性，进行绑定了。
-* 从View来绑定Model比Model来绑定View有两个好处。
+* 从View来绑定Model比Model来绑定View有以下的好处。
+> 1. 再也不用怕UI改名字和改层级结构了，因为只要Unity的引用还在，就不会出错。
+> 2. 属性绑定不用再写代码了，使用编辑器就可以编辑了，可示化了绑定，也清晰明了。
+> 3. 不用再操心UI被删除后，重新创建跟Model属性重新绑定的事了
 
+## 功能特性
+1. UI与数据在编辑器上绑定以后，只要数据有更新，UI都能得到更新
+2. 支持一个Model可以被多个UI所绑定
+3. 可以先持有View对象，UI可以在需要时才被创建
+4. 支持UI（或者UI里面的某一个标签页内容）与在需要显示时才获得最新数据
+5. 支持List功能，并且支持Add、Remove、Insert、AddRange、Swap、Sort、Clear等操作
+6. Canvas使用分层设计，不同层之间有显示隐藏规则不会互相影响
+7. 对于View与Model都有相应的Manager管理，生命周期自动化
+8. UI资源与显示层次，显示隐藏规则都有一个统一的配置
 
+## 文档说明
+doc文档还没开始写，写完会以pdf形式放到工程上，示例场景已经有了，就在项目的Samples下面，Scripts下是源码，Samples的场景上是几个按钮。如果不看代码要想直接跑的话，请看以下说明：
+> 1. 点击开始运行场景后，会有一排按钮，要先点VBM按钮，这是做资源配置的加载和Model，View对象的创建。
+> 2. 点击ShowRoleInfo，显示与自动加载RoleInfo资源，这时候会看到一个UI，但上面数据显示是空的，因为Model的数据就是空的
+> 3. 点击UpdateRoleInfo（或者UpdateRoleInfo2）更新RoleInfo Model的数据，然后就可以看到数据已经被更新到UI上来了，
+> 4. Ranking和RoleInfo都是同理的，RoleInfo是演示数据的绑定更新，和延迟更新（即UI需要显示才更新），Ranking是演示List的绑定更新和Sort功能
 
-设计思路
-1. 数据使用Database
-2. 通用UI与战斗数据
-3. 通用大厅UI与战斗UI
-4. 支持特殊UI，比喻新手引导
-5. 使用数据与UI绑定方式，数据更新，UI跟着更新
-6. 支持延迟加载，即一个UI可以分多次加载
-7. UI要支持排序，数据内容更新，重新加载等所有功能
-8. 有一个通用的View，如果有特殊可以继承这个View来做特殊功能
-9. 一个Model可以绑定多个View，一个View可以来源于多个Model
-10. View在显示时，所有数据实时更新
-11. View隐藏后，再次显示，会有Refrese重新刷新所有数据。（只刷新用到的，比喻有多个标签数据，只刷新一个标签数据）
-12. 数据刷新以标签内容为单位
-13. 有一个ViewList，用来处理列表类的显示数据
-14. Model与View的绑定数据结构为树形结构，当View需要Refrash时，会指定树层级结构来刷新
+## 反馈
+关于问题反馈，可以在Git上提issues，或者是通过邮件联系我（很抱歉，邮件很少使用）
 
 ## License
+抄vccode的，请将就着看
 
 Copyright (c) hubluesky Personal. All rights reserved.
 
