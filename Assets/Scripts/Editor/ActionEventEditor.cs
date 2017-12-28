@@ -11,6 +11,8 @@ namespace VBMEditor {
         static Dictionary<System.Type, List<MemberInfo>> memberInfoMap = new Dictionary<System.Type, List<MemberInfo>>();
 
         SerializedProperty bindingProperty;
+        SerializedProperty memberNameProperty;
+        SerializedProperty memberTypeProperty;
         ReorderableList memberDataList;
         System.Type modelType;
 
@@ -36,6 +38,8 @@ namespace VBMEditor {
             SerializedProperty memberTypeProperty = child.FindPropertyRelative("memberType");
 
             if (GUI.Button(rect, memberNameProperty.stringValue, EditorStyles.popup)) {
+                this.memberNameProperty = memberNameProperty;
+                this.memberTypeProperty = memberTypeProperty;
                 ShowAddMemberMenu(rect, modelType, (target as ActionEvent).ParameterType);
             }
         }
@@ -63,7 +67,7 @@ namespace VBMEditor {
                 if (memberInfo.MemberType == MemberTypes.Method) {
                     MethodInfo methodInfo = memberInfo as MethodInfo;
                     if (methodInfo.GetParameters().Length == 0) {
-                        menu.AddItem(content, false, OnAddMemberBinding);
+                        menu.AddItem(content, false, OnAddMemberBinding, memberInfo);
                         return;
                     }
                 }
@@ -72,14 +76,14 @@ namespace VBMEditor {
                     case MemberTypes.Field:
                         FieldInfo fieldInfo = memberInfo as FieldInfo;
                         if (paramType.IsAssignableFrom(fieldInfo.FieldType)) {
-                            menu.AddItem(content, false, OnAddMemberBinding);
+                            menu.AddItem(content, false, OnAddMemberBinding, memberInfo);
                             return;
                         }
                         break;
                     case MemberTypes.Property:
                         PropertyInfo propertyInfo = memberInfo as PropertyInfo;
                         if (paramType.IsAssignableFrom(propertyInfo.PropertyType)) {
-                            menu.AddItem(content, false, OnAddMemberBinding);
+                            menu.AddItem(content, false, OnAddMemberBinding, memberInfo);
                             return;
                         }
                         break;
@@ -87,7 +91,7 @@ namespace VBMEditor {
                         MethodInfo methodInfo = memberInfo as MethodInfo;
                         ParameterInfo[] parameters = methodInfo.GetParameters();
                         if (parameters.Length == 0 || paramType.IsAssignableFrom(parameters[0].GetType())) {
-                            menu.AddItem(content, false, OnAddMemberBinding);
+                            menu.AddItem(content, false, OnAddMemberBinding, memberInfo);
                             return;
                         }
                         break;
@@ -106,7 +110,12 @@ namespace VBMEditor {
             menu.DropDown(rect);
         }
 
-        private void OnAddMemberBinding() { }
+        private void OnAddMemberBinding(object value) {
+            MemberInfo memberInfo = value as MemberInfo;
+            memberNameProperty.stringValue = memberInfo.Name;
+            memberTypeProperty.intValue = (int)memberInfo.MemberType;
+            memberNameProperty.serializedObject.ApplyModifiedProperties();
+        }
 
         public override void OnInspectorGUI() {
             serializedObject.Update();

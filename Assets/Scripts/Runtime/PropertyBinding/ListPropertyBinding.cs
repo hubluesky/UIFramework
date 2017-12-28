@@ -16,7 +16,7 @@ namespace VBM {
             ElementCleared();
             if (listModel != null)
                 UnbindList(listModel);
-                
+
             listModel = value as ListModel;
             if (listModel != null)
                 BindList(listModel);
@@ -25,6 +25,7 @@ namespace VBM {
         protected virtual void BindList(object value) {
             listModel.elementAdded += ElementAdded;
             listModel.elementInserted += ElementInserted;
+            listModel.elementSwaped += ElementSwaped;
             listModel.elementRemoved += ElementRemoved;
             listModel.elementRemovRanged += ElementRemovRanged;
             listModel.elementCleared += ElementCleared;
@@ -33,6 +34,7 @@ namespace VBM {
         protected virtual void UnbindList(object value) {
             listModel.elementAdded -= ElementAdded;
             listModel.elementInserted -= ElementInserted;
+            listModel.elementSwaped -= ElementSwaped;
             listModel.elementRemoved -= ElementRemoved;
             listModel.elementRemovRanged += ElementRemovRanged;
             listModel.elementCleared -= ElementCleared;
@@ -60,8 +62,15 @@ namespace VBM {
             child.SetSiblingIndex(index);
         }
 
+        protected void ElementSwaped(int index1, int index2) {
+            Transform child1 = componentList.GetChild(index1);
+            Transform child2 = componentList.GetChild(index2);
+            child2.SetSiblingIndex(index1);
+            child1.SetSiblingIndex(index2);
+        }
+
         protected void ElementRemoved(int index) {
-            Transform child = componentList.GetChild(index); ;
+            Transform child = componentList.GetChild(index);
             child.SetAsLastSibling();
             child.gameObject.SetActive(false);
         }

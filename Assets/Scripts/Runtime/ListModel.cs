@@ -8,7 +8,7 @@ namespace VBM {
         public event System.Action<int> elementRemoved;
         public event System.Action<int, int> elementRemovRanged;
         public event System.Action elementCleared;
-        public event System.Action<int, int> elementWraped;
+        public event System.Action<int, int> elementSwaped;
         protected List<Model> list = new List<Model>();
 
         public int Count { get { return list.Count; } }
@@ -59,16 +59,39 @@ namespace VBM {
                 elementRemovRanged(index, count);
         }
 
-        public void Sort(int index, int count, IComparer<Model> comparer) {
-            list.Sort(index, count, comparer);
+        public void Swap(int index1, int index2) {
+            if (index1 == index2) return;
+            Model temp = list[index1];
+            list[index1] = list[index2];
+            list[index2] = temp;
+            if (elementSwaped != null)
+                elementSwaped(index1, index2);
         }
 
-        public void Sort(IComparer<Model> comparer) {
-            list.Sort(comparer);
+        private int Partition(int low, int high, System.Comparison<Model> comparer) {
+            Model privotKey = list[low];
+            while (low < high) {
+                while (low < high && comparer(list[high], privotKey) >= 0) --high;
+                Swap(low, high);
+                while (low < high && comparer(list[low], privotKey) <= 0) ++low;
+                Swap(low, high);
+            }
+            return low;
         }
 
-        public void Sort() {
-            list.Sort();
+        private void QuickSort(int low, int high, System.Comparison<Model> comparer) {
+            if (low >= high) return;
+            int privotLoc = Partition(low, high, comparer);
+            QuickSort(low, privotLoc - 1, comparer);
+            QuickSort(privotLoc + 1, high, comparer);
+        }
+
+        public void Sort(int index, int count, System.Comparison<Model> comparer) {
+            QuickSort(index, index + Count - 1, comparer);
+        }
+
+        public void Sort(System.Comparison<Model> comparer) {
+            Sort(0, list.Count, comparer);
         }
 
         public bool Contains(Model item) {
