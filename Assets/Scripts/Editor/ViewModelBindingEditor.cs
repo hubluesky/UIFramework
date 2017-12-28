@@ -96,14 +96,14 @@ namespace VBMEditor {
                 }
                 GUI.contentColor = contentColor;
                 EditorGUILayout.EndHorizontal();
-                EditorGUILayout.PropertyField(elementProperty);
+                EditorGUILayout.PropertyField(elementProperty, true);
                 EditorGUILayout.EndVertical();
                 EditorGUILayout.EndHorizontal();
             }
         }
 
         private void DrawPropertiesBinding(SerializedProperty propertiesBinding) {
-            propertiesBinding.Next(true);
+            propertiesBinding.NextVisible(true);
             do {
                 DrawPropertyBindingList(propertiesBinding);
             } while (propertiesBinding.NextVisible(false));

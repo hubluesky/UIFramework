@@ -7,9 +7,9 @@ using VBM.Reflection;
 namespace VBMEditor {
     [CustomPropertyDrawer(typeof(PropertyBinding), true)]
     public class PropertyBindingDrawer : PropertyDrawer {
-        private static string[] converterTypeNames;
-        private static string[] converterAssemblyQualifiedNames;
-        private float height;
+        protected static string[] converterTypeNames;
+        protected static string[] converterAssemblyQualifiedNames;
+        protected float height;
 
         static PropertyBindingDrawer() {
             List<System.Type> converterList = ReflectionUtility.GetClassTypeFromAssembly(typeof(PropertyConverter));
@@ -55,7 +55,7 @@ namespace VBMEditor {
             property.isExpanded = EditorGUI.Toggle(rectButton, property.isExpanded, EditorStyles.radioButton);
         }
 
-        private void DrawConverterType(Rect rect, SerializedProperty property, string[] stringValues, string[] displayNames) {
+        protected void DrawConverterType(Rect rect, SerializedProperty property, string[] stringValues, string[] displayNames) {
             int index = ArrayUtility.FindIndex(stringValues, (item) => { return item == property.stringValue; });
             int newIndex = EditorGUI.Popup(rect, property.displayName, index, displayNames);
             if (newIndex != index)
@@ -67,16 +67,21 @@ namespace VBMEditor {
             height = 0.0f;
             foreach (SerializedProperty childProperty in property) {
                 Rect rect = new Rect(position.x, position.y + height, position.width, EditorGUIUtility.singleLineHeight);
-                if (childProperty.propertyPath.EndsWith("propertyName")) {
-                    DrawPropertyName(rect, childProperty);
-                } else if (childProperty.propertyPath.EndsWith("converterType")) {
-                    DrawConverterType(rect, childProperty, converterAssemblyQualifiedNames, converterTypeNames);
-                } else {
-                    EditorGUI.PropertyField(rect, property);
-                }
-                height += EditorGUIUtility.singleLineHeight;
+                if (DrawProperty(rect, childProperty))
+                    height += EditorGUIUtility.singleLineHeight;
             }
             EditorGUI.EndProperty();
+        }
+
+        protected virtual bool DrawProperty(Rect rect, SerializedProperty childProperty) {
+            if (childProperty.propertyPath.EndsWith("propertyName")) {
+                DrawPropertyName(rect, childProperty);
+            } else if (childProperty.propertyPath.EndsWith("converterType")) {
+                DrawConverterType(rect, childProperty, converterAssemblyQualifiedNames, converterTypeNames);
+            } else {
+                EditorGUI.PropertyField(rect, childProperty);
+            }
+            return true;
         }
     }
 }

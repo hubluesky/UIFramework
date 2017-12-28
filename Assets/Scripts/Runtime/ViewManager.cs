@@ -28,7 +28,7 @@ namespace VBM {
 
         public T CreateView<T>(string uniqueId, ViewConfig config) where T : View, new() {
             if (viewMap.ContainsKey(uniqueId)) {
-                Debug.LogError("Create view failed! The uniqueId had contains" + uniqueId);
+                Debug.LogError("Create view failed! The uniqueId had contains " + uniqueId);
                 return null;
             }
             T view = new T();
