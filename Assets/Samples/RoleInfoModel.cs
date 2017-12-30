@@ -3,9 +3,6 @@ using UnityEngine;
 using VBM;
 
 public class RoleInfoModel : DictionaryModel {
-    public int testInt;
-    public static bool testBool;
-
     public Sprite headIcon {
         get { return GetProperty<Sprite>("headIcon"); }
         set { SetProperty("headIcon", value); }

@@ -23,14 +23,14 @@
 9. 支持UI控件的事件回调Model
 
 ## 文档说明
-doc文档还没开始写，写完会以pdf形式放到工程上，示例场景已经有了，就在项目的Samples下面，Scripts下是源码，Samples的场景上是几个按钮。如果不看代码要想直接跑的话，请看以下说明：
+[用户手册](用户手册.pdf)简单说明如何使用这个框架，最主要的是ViewBinding这一部分，这一部分是用户使用编辑器来完成的，这一部分理通了，整个框架还是很好理解的。示例场景已经有了，就在项目的Samples下面，Scripts下是源码，Samples的场景上是几个按钮。如果不看代码要想直接跑的话，请看以下说明：
 > 1. 点击开始运行场景后，会有一排按钮，要先点VBM按钮，这是做资源配置的加载和Model，View对象的创建。
 > 2. 点击ShowRoleInfo，显示与自动加载RoleInfo资源，这时候会看到一个UI，但上面数据显示是空的，因为Model的数据就是空的
 > 3. 点击UpdateRoleInfo（或者UpdateRoleInfo2）更新RoleInfo Model的数据，然后就可以看到数据已经被更新到UI上来了，
 > 4. Ranking和RoleInfo都是同理的，RoleInfo是演示数据的绑定更新，和延迟更新（即UI需要显示才更新），Ranking是演示List的绑定更新和Sort功能
 
 ## 反馈
-关于问题反馈，可以在Git上提issues，或者是通过邮件联系我（很抱歉，邮件很少使用）
+关于问题反馈，可以在Git上提issues，或者是通过邮件联系我，邮件在我的个人信息页面上。（很抱歉，邮件很少使用，不保证会及时回复。）
 
 ## License
 抄vccode的，请将就着看

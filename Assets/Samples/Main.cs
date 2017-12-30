@@ -10,13 +10,13 @@ public class Main : MonoBehaviour {
     public Canvas canvas;
 
     public void StartMBV() {
-        ModelManager.Instance.CreateModel<RoleInfoModel>();
-        ModelManager.Instance.CreateModel<RankingModel>();
-
         ViewManager.Instance.InitCanvasLayers(canvas, typeof(ViewLayer));
 
         ViewConfigAsset configAsset = Resources.Load<ViewConfigAsset>("Configs/ViewConfigAsset");
         ViewConfigManager.Instance.AddConfigs(configAsset.configs);
+        
+        ModelManager.Instance.CreateModel<RoleInfoModel>();
+        ModelManager.Instance.CreateModel<RankingModel>();
 
         ViewConfig roleInfoConfig = ViewConfigManager.Instance.GetViewConfig(ViewModulesName.RoleInfo.ToString());
         ViewConfig rankingConfig = ViewConfigManager.Instance.GetViewConfig(ViewModulesName.Ranking.ToString());
