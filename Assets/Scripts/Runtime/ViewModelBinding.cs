@@ -81,6 +81,10 @@ namespace VBM {
                 RefreshBindingPropertys();
         }
 
+        public void HideView() {
+            view.Hide();
+        }
+
         void OnEnable() {
             RefreshBindingPropertys();
         }
