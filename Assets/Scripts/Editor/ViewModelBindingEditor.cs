@@ -9,14 +9,14 @@ using VBM.Reflection;
 namespace VBMEditor {
     [CustomEditor(typeof(ViewModelBinding), true), CanEditMultipleObjects]
     public class ViewModelBindingEditor : Editor {
-        public static readonly List<System.Type> modelTypeList;
-        public static readonly string[] modelNames;
+        public static List<System.Type> modelTypeList;
+        public static string[] modelNames;
 
         private const string expandStatusText = " Click Expand";
         private const string collapseStatusText = " Click Collapse";
         private bool switchModelSelected;
 
-        static ViewModelBindingEditor() {
+        public ViewModelBindingEditor() {
             modelTypeList = ReflectionUtility.GetClassTypeFromAssembly(typeof(Model));
             modelNames = System.Array.ConvertAll(modelTypeList.ToArray(), (src) => src.FullName);
         }

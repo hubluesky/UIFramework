@@ -13,12 +13,14 @@ namespace VBMEditor {
 
         static PropertyBindingDrawer() {
             List<System.Type> converterList = ReflectionUtility.GetClassTypeFromAssembly(typeof(PropertyConverter));
+            converterList.Insert(0, null);
             converterTypeNames = new string[converterList.Count];
             converterAssemblyQualifiedNames = new string[converterList.Count];
-            for (int i = 0; i < converterList.Count; i++) {
+            for (int i = 1; i < converterList.Count; i++) {
                 converterTypeNames[i] = converterList[i].Name;
                 converterAssemblyQualifiedNames[i] = converterList[i].AssemblyQualifiedName;
             }
+            converterTypeNames[0] = "None";
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
@@ -34,8 +36,13 @@ namespace VBMEditor {
             } else {
                 SerializedProperty modelUniqueId = property.serializedObject.FindProperty("modelUniqueId");
                 int selected = System.Array.FindIndex(ViewModelBindingEditor.modelNames, (element) => { return element == modelUniqueId.stringValue; });
-                string[] fieldNames;
-                if (selected != -1) {
+                if (selected == -1) {
+                    Color oldColor = GUI.color;
+                    GUI.color = Color.red;
+                    EditorGUI.LabelField(rectContent, property.displayName, "Not Propertys", EditorStyles.popup);
+                    GUI.color = oldColor;
+                } else {
+                    string[] fieldNames;
                     List<string> propertyList = new List<string>();
                     ReflectionUtility.ForeachGetClassProperty(ViewModelBindingEditor.modelTypeList[selected], (propertyInfo) => {
                         if (propertyInfo.CanRead)
@@ -43,13 +50,10 @@ namespace VBMEditor {
                     });
                     fieldNames = propertyList.ToArray();
                     selected = propertyList.FindIndex((element) => { return element == property.stringValue; });
-                } else {
-                    selected = -1;
-                    fieldNames = null;
-                }
-                int newSelected = EditorGUI.Popup(rectContent, property.displayName, selected, fieldNames);
-                if (selected != newSelected) {
-                    property.stringValue = fieldNames[newSelected];
+                    int newSelected = EditorGUI.Popup(rectContent, property.displayName, selected, fieldNames);
+                    if (selected != newSelected) {
+                        property.stringValue = fieldNames[newSelected];
+                    }
                 }
             }
             property.isExpanded = EditorGUI.Toggle(rectButton, property.isExpanded, EditorStyles.radioButton);
