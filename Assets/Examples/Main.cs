@@ -53,11 +53,6 @@ public class Main : MonoBehaviour {
         }
     }
 
-    void OnDestroy() {
-        if (luaenv != null)
-            luaenv.Dispose();
-    }
-
     public void ShowRoleInfo() {
         View view = ViewManager.Instance.GetView(ViewModulesName.RoleInfo.ToString());
         view.Show();

@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace VBM.Reflection {
     public static class ReflectionUtility {
 
+        public static Assembly[] GetAssemblys() {
+            return AppDomain.CurrentDomain.GetAssemblies().Where(a => !(a is System.Reflection.Emit.AssemblyBuilder)).ToArray();
+        }
+
         public static void ForeachClassTypeFromAssembly(Func<Type, bool> foreachAction) {
-            Assembly[] assemblys = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblys) {
+            foreach (Assembly assembly in GetAssemblys()) {
                 foreach (Type type in assembly.GetExportedTypes()) {
                     if (!foreachAction(type))
                         return;
@@ -16,8 +20,7 @@ namespace VBM.Reflection {
         }
 
         public static void ForeachSubClassTypeFromAssembly(Type baseType, Func<Type, bool> foreachAction) {
-            Assembly[] assemblys = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblys) {
+            foreach (Assembly assembly in GetAssemblys()) {
                 foreach (Type type in assembly.GetExportedTypes()) {
                     if (type.IsClass && !type.IsAbstract && !type.IsGenericType && baseType.IsAssignableFrom(type))
                         if (!foreachAction(type))
@@ -41,8 +44,7 @@ namespace VBM.Reflection {
 
         public static List<Type> GetClassTypeFromAssembly(Type baseType) {
             List<Type> list = new List<Type>();
-            Assembly[] assemblys = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblys) {
+            foreach (Assembly assembly in GetAssemblys()) {
                 foreach (Type type in assembly.GetExportedTypes()) {
                     if (type.IsClass && !type.IsAbstract && !type.IsGenericType && baseType.IsAssignableFrom(type))
                         list.Add(type);
@@ -53,8 +55,7 @@ namespace VBM.Reflection {
 
         public static List<string> GetClassNameFromAssembly(Type baseType) {
             List<string> list = new List<string>();
-            Assembly[] assemblys = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblys) {
+            foreach (Assembly assembly in GetAssemblys()) {
                 foreach (Type type in assembly.GetExportedTypes()) {
                     if (type.IsClass && !type.IsAbstract && !type.IsGenericType && baseType.IsAssignableFrom(type))
                         list.Add(type.FullName);

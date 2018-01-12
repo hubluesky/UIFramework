@@ -16,7 +16,7 @@ namespace VBMEditor {
         private const string collapseStatusText = " Click Collapse";
         private bool switchModelSelected;
 
-        public ViewModelBindingEditor() {
+        void OnEnable() {
             modelTypeList = ReflectionUtility.GetClassTypeFromAssembly(typeof(Model));
             modelNames = System.Array.ConvertAll(modelTypeList.ToArray(), (src) => src.FullName);
         }
