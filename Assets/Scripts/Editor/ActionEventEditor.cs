@@ -101,7 +101,7 @@ namespace VBMEditor {
             EditorGUILayout.PropertyField(bindingProperty);
             if (bindingProperty.objectReferenceValue != null) {
                 ViewModelBinding viewModelBinding = bindingProperty.objectReferenceValue as ViewModelBinding;
-                modelType = ViewModelBindingEditor.modelTypeList.Find((element) => { return viewModelBinding.modelId == element.FullName; });
+                modelType = VBM.Reflection.ReflectionUtility.GetModelTypeList().Find((element) => { return viewModelBinding.modelId == element.FullName; });
             } else {
                 modelType = null;
             }

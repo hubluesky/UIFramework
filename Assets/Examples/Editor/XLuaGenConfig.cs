@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VBM;
@@ -20,6 +21,8 @@ public static class XLuaGenConfig {
     public static List<System.Type> CSharpCallLua = new List<System.Type>() {
         typeof(System.Action<string, object>),
         typeof(System.Func<string, object>),
+        typeof(System.Func<string, Action>),
+        typeof(System.Func<string, LuaFunction>),
 
         typeof(System.Action),
         typeof(System.Func<double, double, double>),

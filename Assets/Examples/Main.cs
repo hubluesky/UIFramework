@@ -42,11 +42,11 @@ public class Main : MonoBehaviour {
             }
         });
         luaenv.DoString("require 'Main'");
+
         LuaFunction mainFunc = luaenv.Global.Get<LuaFunction>("Main");
         mainFunc.Call();
     }
 
-    // Update is called once per frame
     void Update() {
         if (luaenv != null) {
             luaenv.Tick();

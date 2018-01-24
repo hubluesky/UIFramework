@@ -5,9 +5,16 @@ using System.Reflection;
 
 namespace VBM.Reflection {
     public static class ReflectionUtility {
+        private static List<System.Type> modelTypeList;
 
         public static Assembly[] GetAssemblys() {
             return AppDomain.CurrentDomain.GetAssemblies().Where(a => !(a is System.Reflection.Emit.AssemblyBuilder)).ToArray();
+        }
+
+        public static List<System.Type> GetModelTypeList() {
+            if (modelTypeList == null)
+                modelTypeList = ReflectionUtility.GetClassTypeFromAssembly(typeof(Model));
+            return modelTypeList;
         }
 
         public static void ForeachClassTypeFromAssembly(Func<Type, bool> foreachAction) {

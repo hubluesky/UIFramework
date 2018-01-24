@@ -9,24 +9,52 @@ using VBM.Reflection;
 namespace VBMEditor {
     [CustomEditor(typeof(ViewModelBinding), true), CanEditMultipleObjects]
     public class ViewModelBindingEditor : Editor {
-        public static List<System.Type> modelTypeList;
-        public static string[] modelNames;
+        protected List<System.Type> modelTypeList;
 
         private const string expandStatusText = " Click Expand";
         private const string collapseStatusText = " Click Collapse";
         private bool switchModelSelected;
 
-        void OnEnable() {
-            modelTypeList = ReflectionUtility.GetClassTypeFromAssembly(typeof(Model));
-            modelNames = System.Array.ConvertAll(modelTypeList.ToArray(), (src) => src.FullName);
+        public static ViewModelBindingEditor Instance { get; protected set; }
+
+        protected void OnEnable() {
+            Instance = this;
+            modelTypeList = ReflectionUtility.GetModelTypeList();
+        }
+
+        public virtual int IndexOfModelProperty(string name) {
+            return modelTypeList.FindIndex((element) => { return element.FullName == name; });
+        }
+
+        public virtual List<string> GetModelPropertyList(int selected) {
+            List<string> propertyList = new List<string>();
+            ReflectionUtility.ForeachGetClassProperty(modelTypeList[selected], (propertyInfo) => {
+                if (propertyInfo.CanRead)
+                    propertyList.Add(propertyInfo.Name);
+            });
+            return propertyList;
         }
 
         protected void DrawSelectedModel(SerializedProperty modelUniqueId) {
-            int selected = System.Array.FindIndex(modelNames, (element) => { return element == modelUniqueId.stringValue; });
-            int newSelected = EditorGUILayout.Popup(selected, modelNames);
-            if (selected != newSelected) {
-                modelUniqueId.stringValue = modelNames[newSelected];
+            if (GUILayout.Button(modelUniqueId.stringValue)) {
+                ShowAddMemberMenu(modelUniqueId);
             }
+        }
+
+        protected void AddModelTypeMenus(SerializedProperty property, GenericMenu menu) {
+            foreach (System.Type type in modelTypeList) {
+                GUIContent content = new GUIContent(type.FullName);
+                menu.AddItem(content, false, () => {
+                    property.stringValue = type.FullName;
+                    serializedObject.ApplyModifiedProperties();
+                });
+            }
+        }
+
+        protected virtual void ShowAddMemberMenu(SerializedProperty property) {
+            GenericMenu menu = new GenericMenu();
+            AddModelTypeMenus(property, menu);
+            menu.ShowAsContext();
         }
 
         public override void OnInspectorGUI() {
@@ -48,7 +76,8 @@ namespace VBMEditor {
             if (switchModelSelected) {
                 EditorGUILayout.PropertyField(modelUniqueId, GUIContent.none, null);
             } else {
-                DrawSelectedModel(modelUniqueId);
+                if (GUILayout.Button(modelUniqueId.stringValue))
+                    ShowAddMemberMenu(modelUniqueId);
             }
 
             switchModelSelected = EditorGUILayout.Toggle(switchModelSelected, EditorStyles.radioButton, GUILayout.Width(15f));

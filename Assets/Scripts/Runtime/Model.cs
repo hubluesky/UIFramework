@@ -10,6 +10,10 @@ namespace VBM {
 
         public abstract object GetProperty(string propertyName);
 
+        public abstract System.Action GetFunction(string funcName);
+
+        public abstract System.Action<T> GetFunctionParam1<T>(string funcName);
+
         public void NotifyPropertyChanged(string propertyName, object value) {
             if (propertyChanged != null)
                 propertyChanged(propertyName, value);

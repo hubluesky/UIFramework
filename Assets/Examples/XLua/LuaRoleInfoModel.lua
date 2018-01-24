@@ -1,13 +1,14 @@
 require "LuaModel"
 
 LuaRoleInfoModel = class(LuaModel)
+registerType(LuaRoleInfoModel)
 
-function LuaRoleInfoModel:Ctor()
-    LuaModel.Ctor(self, "LuaRoleInfoModel")
+function LuaRoleInfoModel:DeclareProperties()
     self.intValue = 32
     self.stringValue = 'hello'
+    self.testValue = 'test'
 end
 
-function LuaRoleInfoModel:CallAddFriend()
+function LuaRoleInfoModel:AddFriend()
     print("call add friend in lua")
 end

@@ -10,13 +10,17 @@ namespace VBM {
 
         public void CallMemberFunctions() {
             foreach (string memberName in memberNameArray) {
-                ReflectionMemberUtility.CallMemberFunction(viewModelBinding.model, memberName);
+                System.Action function = viewModelBinding.model.GetFunction(memberName);
+                if (function != null)
+                    function();
             }
         }
 
         public void CallMemberFunctions<T>(T value) {
             foreach (string memberName in memberNameArray) {
-                ReflectionMemberUtility.CallMemberFunction(viewModelBinding.model, memberName, value);
+                System.Action<T> function = viewModelBinding.model.GetFunctionParam1<T>(memberName);
+                if (function != null)
+                    function(value);
             }
         }
     }

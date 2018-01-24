@@ -27,7 +27,7 @@ namespace VBMEditor {
             return height;
         }
 
-        public static void DrawPropertyName(Rect rect, SerializedProperty property) {
+        public void DrawPropertyName(Rect rect, SerializedProperty property) {
             float switchButtonWidth = rect.height;
             Rect rectContent = new Rect(rect.x, rect.y, rect.width - switchButtonWidth, rect.height);
             Rect rectButton = new Rect(rect.x + rectContent.width, rect.y, switchButtonWidth, rect.height);
@@ -35,20 +35,15 @@ namespace VBMEditor {
                 EditorGUI.PropertyField(rectContent, property);
             } else {
                 SerializedProperty modelUniqueId = property.serializedObject.FindProperty("modelUniqueId");
-                int selected = System.Array.FindIndex(ViewModelBindingEditor.modelNames, (element) => { return element == modelUniqueId.stringValue; });
+                int selected = ViewModelBindingEditor.Instance.IndexOfModelProperty(modelUniqueId.stringValue);
                 if (selected == -1) {
                     Color oldColor = GUI.color;
                     GUI.color = Color.red;
                     EditorGUI.LabelField(rectContent, property.displayName, "Not Propertys", EditorStyles.popup);
                     GUI.color = oldColor;
                 } else {
-                    string[] fieldNames;
-                    List<string> propertyList = new List<string>();
-                    ReflectionUtility.ForeachGetClassProperty(ViewModelBindingEditor.modelTypeList[selected], (propertyInfo) => {
-                        if (propertyInfo.CanRead)
-                            propertyList.Add(propertyInfo.Name);
-                    });
-                    fieldNames = propertyList.ToArray();
+                    List<string> propertyList = ViewModelBindingEditor.Instance.GetModelPropertyList(selected);
+                    string[] fieldNames = propertyList.ToArray();
                     selected = propertyList.FindIndex((element) => { return element == property.stringValue; });
                     int newSelected = EditorGUI.Popup(rectContent, property.displayName, selected, fieldNames);
                     if (selected != newSelected) {
