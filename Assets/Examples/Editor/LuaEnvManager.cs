@@ -16,6 +16,7 @@ public class LuaEnvManager {
     }
 
     private void Initialized() {
+        initialized = true;
         luaenv = new LuaEnv();
         string LuaScriptPath = System.IO.Path.Combine(Application.dataPath, "Examples/XLua");
         luaenv.AddLoader((ref string filename) => {

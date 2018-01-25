@@ -107,6 +107,9 @@ namespace VBMEditor {
             if (GUILayout.Button(new GUIContent("Add", "Add Property Binding"), EditorStyles.miniButton, GUILayout.ExpandWidth(false))) {
                 bindingList.InsertArrayElementAtIndex(bindingList.arraySize);
             }
+            if (GUILayout.Button(new GUIContent("Clear", "Remove all Property Binding"), EditorStyles.miniButton, GUILayout.ExpandWidth(false))) {
+                bindingList.ClearArray();
+            }
             EditorGUILayout.EndHorizontal();
             if (!bindingList.isExpanded)
                 return;
@@ -131,11 +134,41 @@ namespace VBMEditor {
             }
         }
 
+        private void AddMenuItem(GenericMenu menu, SerializedProperty bindingList) {
+            if (bindingList.arraySize == 0) {
+                menu.AddItem(new GUIContent(bindingList.displayName), false, (propertyPath) => {
+                    SerializedProperty property = serializedObject.FindProperty(propertyPath.ToString());
+                    property.InsertArrayElementAtIndex(property.arraySize);
+                    serializedObject.ApplyModifiedProperties();
+                }, bindingList.propertyPath);
+            } else {
+                menu.AddDisabledItem(new GUIContent(bindingList.displayName));
+            }
+        }
+
         private void DrawPropertiesBinding(SerializedProperty propertiesBinding) {
             propertiesBinding.Next(true);
             do {
-                DrawPropertyBindingList(propertiesBinding);
+                if (propertiesBinding.isArray && propertiesBinding.arraySize > 0)
+                    DrawPropertyBindingList(propertiesBinding);
             } while (propertiesBinding.NextVisible(false));
+
+            //
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Add New Properties Binding Type", GUILayout.ExpandWidth(false))) {
+                GenericMenu menu = new GenericMenu();
+                propertiesBinding = serializedObject.FindProperty("propertiesBinding");
+                propertiesBinding.Next(true);
+                do {
+                    if (propertiesBinding.isArray)
+                        AddMenuItem(menu, propertiesBinding);
+                } while (propertiesBinding.NextVisible(false));
+
+                menu.ShowAsContext();
+            }
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
         }
     }
 }

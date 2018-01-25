@@ -79,10 +79,10 @@ namespace VBMEditor {
         }
 
         protected virtual void AddMembers(GenericMenu menu, string modelId, System.Type paramType) {
-            List<System.Type> modelTypeList = modelTypeList = ReflectionUtility.GetModelTypeList();
+            List<System.Type> modelTypeList = ReflectionUtility.GetModelTypeList();
             System.Type type = modelTypeList.Find((t) => t.FullName == modelId);
             if (type == null) return;
-            
+
             List<MemberInfo> memberInfoList = ReflectionMemberUtility.GetMembers(type);
             foreach (MemberInfo memberInfo in memberInfoList) {
                 AddMemberMenu(menu, memberInfo, paramType);
