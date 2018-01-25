@@ -6,7 +6,6 @@ namespace VBM {
     [RequireComponent(typeof(Toggle))]
     public class ToggleEvent : ActionEvent {
         private Toggle toggle;
-
         public override Type ParameterType { get { return typeof(bool); } }
 
         void Start() {

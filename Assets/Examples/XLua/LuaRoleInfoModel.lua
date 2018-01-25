@@ -9,6 +9,6 @@ function LuaRoleInfoModel:DeclareProperties()
     self.testValue = 'test'
 end
 
-function LuaRoleInfoModel:AddFriend()
+function LuaRoleInfoModel:CallAddFriend()
     print("call add friend in lua")
 end

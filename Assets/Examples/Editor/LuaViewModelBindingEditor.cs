@@ -7,8 +7,7 @@ using XLua;
 
 [CustomEditor(typeof(ViewModelBinding), true), CanEditMultipleObjects]
 public class LuaViewModelBindingEditor : ViewModelBindingEditor {
-    private List<string> luaModelNameList = new List<string>();
-    private LuaEnv luaenv;
+    private List<string> luaModelNameList;
 
     protected new void OnEnable() {
         base.OnEnable();
@@ -16,34 +15,7 @@ public class LuaViewModelBindingEditor : ViewModelBindingEditor {
     }
 
     void InitLua() {
-        luaModelNameList.Clear();
-        luaenv = new LuaEnv();
-        string LuaScriptPath = System.IO.Path.Combine(Application.dataPath, "Examples/XLua");
-        luaenv.AddLoader((ref string filename) => {
-            string filepath = System.IO.Path.Combine(LuaScriptPath, filename + ".lua");
-            if (System.IO.File.Exists(filepath)) {
-                return System.IO.File.ReadAllBytes(filepath);
-            } else {
-                return null;
-            }
-        });
-        luaenv.DoString("require 'Main'");
-
-        foreach (var entryName in luaenv.Global.GetKeys<string>()) {
-            LuaTable table = luaenv.Global.Get<object, LuaTable>(entryName);
-            if (table == null)
-                continue;
-            LuaFunction getTypeFunc = table.Get<string, LuaFunction>("GetType");
-            if (getTypeFunc == null)
-                continue;
-
-            LuaFunction instanceFunc = luaenv.Global.Get<LuaFunction>("InstanceOf");
-            var result = instanceFunc.Call(table, "LuaModel");
-            if (!(bool) result[0])
-                continue;
-
-            luaModelNameList.Add(entryName);
-        }
+        luaModelNameList = LuaEnvManager.Instance.GetLuaModelNameList();
     }
 
     public override int IndexOfModelProperty(string name) {
@@ -59,10 +31,10 @@ public class LuaViewModelBindingEditor : ViewModelBindingEditor {
 
         List<string> propertiesList = new List<string>();
         index = index - modelTypeList.Count;
-        LuaTable table = luaenv.Global.Get<object, LuaTable>(luaModelNameList[index]);
+        LuaTable table = LuaEnvManager.Instance.luaenv.Global.Get<object, LuaTable>(luaModelNameList[index]);
         LuaFunction declarePropertiesFunc = table.Get<string, LuaFunction>("DeclareProperties");
         if (declarePropertiesFunc != null) {
-            using(LuaTable propertiesTable = luaenv.NewTable()) {
+            using(LuaTable propertiesTable = LuaEnvManager.Instance.luaenv.NewTable()) {
                 declarePropertiesFunc.Call(propertiesTable);
                 foreach (var memberName in propertiesTable.GetKeys<string>())
                     propertiesList.Add(memberName);

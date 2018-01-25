@@ -6,7 +6,6 @@ namespace VBM {
     [RequireComponent(typeof(Button))]
     public class ButtonEvent : ActionEvent {
         private Button button;
-
         public override Type ParameterType { get { return null; } }
 
         void Start() {

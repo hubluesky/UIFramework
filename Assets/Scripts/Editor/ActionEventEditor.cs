@@ -1,18 +1,17 @@
-
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using VBM;
+using VBM.Reflection;
 
 namespace VBMEditor {
     [CustomEditor(typeof(ActionEvent), true)]
     public class ActionEventEditor : Editor {
-        SerializedProperty bindingProperty;
-        SerializedProperty memberNameProperty;
-        ReorderableList memberDataList;
-        System.Type modelType;
+        protected SerializedProperty bindingProperty;
+        protected SerializedProperty memberNameProperty;
+        protected ReorderableList memberDataList;
 
         protected virtual void OnEnable() {
             bindingProperty = serializedObject.FindProperty("viewModelBinding");
@@ -35,7 +34,7 @@ namespace VBMEditor {
 
             if (GUI.Button(rect, child.stringValue, EditorStyles.popup)) {
                 this.memberNameProperty = child;
-                ShowAddMemberMenu(rect, modelType, (target as ActionEvent).ParameterType);
+                ShowAddMemberMenu(rect, bindingProperty.objectReferenceValue as ViewModelBinding, (target as ActionEvent).ParameterType);
             }
         }
 
@@ -79,12 +78,20 @@ namespace VBMEditor {
             menu.AddDisabledItem(content);
         }
 
-        void ShowAddMemberMenu(Rect rect, System.Type type, System.Type paramType) {
+        protected virtual void AddMembers(GenericMenu menu, string modelId, System.Type paramType) {
+            List<System.Type> modelTypeList = modelTypeList = ReflectionUtility.GetModelTypeList();
+            System.Type type = modelTypeList.Find((t) => t.FullName == modelId);
+            if (type == null) return;
+            
             List<MemberInfo> memberInfoList = ReflectionMemberUtility.GetMembers(type);
-            GenericMenu menu = new GenericMenu();
             foreach (MemberInfo memberInfo in memberInfoList) {
                 AddMemberMenu(menu, memberInfo, paramType);
             }
+        }
+
+        void ShowAddMemberMenu(Rect rect, ViewModelBinding viewmodelBinding, System.Type paramType) {
+            GenericMenu menu = new GenericMenu();
+            AddMembers(menu, viewmodelBinding.modelId, paramType);
             menu.DropDown(rect);
         }
 
@@ -99,14 +106,8 @@ namespace VBMEditor {
             EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.PropertyField(bindingProperty);
-            if (bindingProperty.objectReferenceValue != null) {
-                ViewModelBinding viewModelBinding = bindingProperty.objectReferenceValue as ViewModelBinding;
-                modelType = VBM.Reflection.ReflectionUtility.GetModelTypeList().Find((element) => { return viewModelBinding.modelId == element.FullName; });
-            } else {
-                modelType = null;
-            }
-            EditorGUI.BeginDisabledGroup(modelType == null);
-            GUILayout.Button(modelType != null ? modelType.FullName : "Please set view model binding");
+            EditorGUI.BeginDisabledGroup(bindingProperty.objectReferenceValue == null);
+            GUILayout.Button(bindingProperty.objectReferenceValue != null ? bindingProperty.displayName : "Please set view model binding");
             memberDataList.DoLayoutList();
             EditorGUI.EndDisabledGroup();
             if (EditorGUI.EndChangeCheck())
