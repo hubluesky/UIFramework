@@ -13,10 +13,9 @@ namespace VBM {
 
         public abstract void OnPropertyChange(object value);
 
-        public void OnBeforeSerialize() {
-        }
+        public virtual void OnBeforeSerialize() { }
 
-        public void OnAfterDeserialize() {
+        public virtual void OnAfterDeserialize() {
             if (!string.IsNullOrEmpty(converterType)) {
                 System.Type type = System.Type.GetType(converterType);
                 if (type == null)

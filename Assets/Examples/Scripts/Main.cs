@@ -123,7 +123,7 @@ public class Main : MonoBehaviour {
         model.rankList.Sort((x, y) => {
             RankItemModel rx = x as RankItemModel;
             RankItemModel ry = y as RankItemModel;
-            return rx.rank - ry.rank;
+            return ry.rank - rx.rank;
         });
 
         model.rankList.Swap(1, 3);
