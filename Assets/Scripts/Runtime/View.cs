@@ -10,7 +10,7 @@ namespace VBM {
             this.transform = gameObject.transform;
             ViewModelBinding binding = gameObject.GetComponent<ViewModelBinding>();
             binding.view = this;
-            GameObjectEvent objectEvent = gameObject.AddComponent<GameObjectEvent>();
+            MonoBehaviourEvent objectEvent = gameObject.AddComponent<MonoBehaviourEvent>();
             objectEvent.onStartEvent += OnCreated;
             objectEvent.onEnableEvent += OnShow;
             objectEvent.onDisableEvent += OnHide;

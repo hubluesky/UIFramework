@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GameObjectEvent : MonoBehaviour {
+public class MonoBehaviourEvent : MonoBehaviour {
     public event System.Action onAwakeEvent;
     public event System.Action onStartEvent;
     public event System.Action onEnableEvent;
