@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace VBM {
     public class ViewProxy : View {
-
         public System.Action<GameObject> SetViewAssetFunc;
         public System.Action ShowFunc;
         public System.Action HideFunc;
