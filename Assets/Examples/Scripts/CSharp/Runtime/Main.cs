@@ -12,7 +12,7 @@ public class Main : MonoBehaviour {
 	public void Initialized() {
 		InitModels();
 
-		Canvas canvas = CanvasUtility.CreateRootCanvas();
+		Canvas canvas = CanvasUtility.CreateRootCanvas(1920, 1080);
 		ViewManager.Instance.InitCanvasLayers(canvas, typeof(ViewLayer));
 
 		ViewConfigAsset configAsset = Resources.Load<ViewConfigAsset>("Configs/ViewConfigAsset");

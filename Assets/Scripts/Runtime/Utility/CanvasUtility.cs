@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace VBM {
     public static class CanvasUtility {
-        public static Canvas CreateRootCanvas() {
+        public static Canvas CreateRootCanvas(int width, int height) {
             // Create uiroot transform
             GameObject uiRoot = new GameObject("UIRoot");
             uiRoot.layer = LayerMask.NameToLayer("UI");
@@ -32,7 +32,7 @@ namespace VBM {
             uiCanvas.AddComponent<GraphicRaycaster>();
             CanvasScaler canvasScaler = uiCanvas.AddComponent<CanvasScaler>();
             canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            canvasScaler.referenceResolution = new Vector2(1280, 720);
+            canvasScaler.referenceResolution = new Vector2(width, height);
             canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             canvasScaler.matchWidthOrHeight = 1.0f;
             // Create event system
