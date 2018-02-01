@@ -29,11 +29,17 @@
 > 3. 点击UpdateRoleInfo（或者UpdateRoleInfo2）更新RoleInfo Model的数据，然后就可以看到数据已经被更新到UI上来了，
 > 4. Ranking和RoleInfo都是同理的，RoleInfo是演示数据的绑定更新，和延迟更新（即UI需要显示才更新），Ranking是演示List的绑定更新和Sort功能
 
+## 如何开始
+1. 工程中两个Examples，一个是旧的OldExamples，这是一个简单的示例，因为简单，所以很好理解，也很好做测试，同时还包含了对XLua使用的示例。
+    * 打开OldExamples文件夹里面的Scene，运行场景后，先要点一下MBV按钮，这是做初始化，然后就可以选择随意一个Show按钮来显示相应的UI了。
+2. 新的Examples，这是我在AssetStore上下的免费资源，然后整合到项目里来，从登陆，到大厅，再有成就、商城等UI，适合对这个项目的原理有了解后的示例，当然也可以简单的看看效果。
+    * 打开Examples/Scenes/MainScen，运行场景后，输入任意账号密码就可以登陆入大厅了。
+3. 如果有什么建议或者是问题，欢迎给我[留言](https://github.com/hubluesky/UIFramework/issues)。
+
 ## 反馈
-关于问题反馈，可以在Git上提issues，或者是通过邮件联系我，邮件在我的个人信息页面上。（很抱歉，邮件很少使用，不保证会及时回复。）
+关于问题反馈，可以在Git上提[issue](https://github.com/hubluesky/UIFramework/issues)，或者是通过邮件联系我，邮件在我的[个人信息](https://github.com/hubluesky)页面上。（很抱歉，邮件很少使用，不保证会及时回复。）
 
 ## License
-抄vccode的，请将就着看
 
 Copyright (c) hubluesky Personal. All rights reserved.
 

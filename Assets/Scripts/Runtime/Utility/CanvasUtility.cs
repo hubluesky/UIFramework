@@ -8,7 +8,6 @@ namespace VBM {
             // Create uiroot transform
             GameObject uiRoot = new GameObject("UIRoot");
             uiRoot.layer = LayerMask.NameToLayer("UI");
-            // uiRoot.AddComponent<Transform>();
             // Create ui camera
             GameObject uiCamera = new GameObject("UICamera");
             uiCamera.layer = LayerMask.NameToLayer("UI");
