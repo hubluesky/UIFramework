@@ -34,7 +34,7 @@ namespace VBM {
 
         public void SetProperty(string key, object value) {
             if (variableMap.ContainsKey(key)) {
-                if (variableMap[key].Equals(value))
+                if (variableMap[key] == value || (variableMap[key] != null && variableMap[key].Equals(value)))
                     return;
                 variableMap[key] = value;
             } else {

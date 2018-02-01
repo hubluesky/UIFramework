@@ -18,8 +18,10 @@ namespace VBM {
                 UnbindList(listModel);
 
             listModel = value as ListModel;
-            if (listModel != null)
+            if (listModel != null) {
+                InitChilds();
                 BindList(listModel);
+            }
         }
 
         protected virtual void BindList(object value) {
@@ -40,10 +42,16 @@ namespace VBM {
             listModel.elementCleared -= ElementCleared;
         }
 
-        protected Transform CreateChild(Model model) {
+        protected void InitChilds() {
+            for (int i = 0; i < listModel.Count; i++) {
+                CreateChild(listModel[i], i);
+            }
+        }
+
+        protected Transform CreateChild(Model model, int index) {
             Transform child;
-            if (listModel.Count <= componentList.childCount) {
-                child = componentList.GetChild(listModel.Count - 1);
+            if (index < componentList.childCount) {
+                child = componentList.GetChild(index);
             } else {
                 child = Object.Instantiate(componentElement.transform, Vector3.zero, Quaternion.identity, componentList);
             }
@@ -54,11 +62,11 @@ namespace VBM {
         }
 
         protected void ElementAdded(Model model) {
-            CreateChild(model);
+            CreateChild(model, listModel.Count - 1);
         }
 
         protected void ElementInserted(int index, Model model) {
-            Transform child = CreateChild(model);
+            Transform child = CreateChild(model, listModel.Count - 1);
             child.SetSiblingIndex(index);
         }
 

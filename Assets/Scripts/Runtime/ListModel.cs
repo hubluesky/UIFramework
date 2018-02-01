@@ -1,8 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace VBM {
-    public class ListModel {
+    public class ListModel : IEnumerable<Model> {
         public event System.Action<Model> elementAdded;
         public event System.Action<int, Model> elementInserted;
         public event System.Action<int> elementRemoved;
@@ -13,7 +14,7 @@ namespace VBM {
 
         public int Count { get { return list.Count; } }
 
-        public Model this[int index] {
+        public Model this [int index] {
             get { return list[index]; }
             set { list[index] = value; }
         }
@@ -118,6 +119,14 @@ namespace VBM {
 
         public int BinarySearch(Model item, IComparer<Model> comparer) {
             return list.BinarySearch(item, comparer);
+        }
+
+        public IEnumerator<Model> GetEnumerator() {
+            return list.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return list.GetEnumerator();
         }
     }
 }

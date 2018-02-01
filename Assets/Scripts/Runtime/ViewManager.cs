@@ -41,6 +41,10 @@ namespace VBM {
             view.config.LoadAsset(view.SetViewAsset);
         }
 
+        public View GetView(System.Enum value) {
+            return GetView(value.ToString());
+        }
+
         public View GetView(string uniqueId) {
             View view;
             viewMap.TryGetValue(uniqueId, out view);
@@ -50,9 +54,26 @@ namespace VBM {
         public void InitCanvasLayers(Canvas canvas, System.Type enumType) {
             rootCanvas = canvas;
             foreach (var layer in System.Enum.GetValues(enumType)) {
-                GameObject layerObject = CanvasUtility.CreateLayer(canvas.transform, layer.ToString());
-                layerList.Add(new LayerTransform() { layer = (int)layer, transform = layerObject.transform });
+            GameObject layerObject = CanvasUtility.CreateLayer(canvas.transform, layer.ToString());
+            layerList.Add(new LayerTransform() { layer = (int) layer, transform = layerObject.transform }); }
+        }
+
+        public void ShowView(System.Enum value) {
+            View view = GetView(value);
+            if(view == null){
+                Debug.LogWarning("Show view failed! Have not enum " + value);
+                return;
             }
+            view.Show();
+        }
+
+        public void HideView(System.Enum value) {
+            View view = GetView(value);
+            if(view == null) {
+                Debug.LogWarning("Hide view failed! Have not enum " + value);
+                return;
+            }
+            view.Hide();
         }
 
         internal void ShowView(View view) {

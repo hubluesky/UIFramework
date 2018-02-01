@@ -5,11 +5,13 @@ namespace VBM {
         public override Type ParameterType { get { return typeof(bool); } }
 
         void OnEnable() {
-            CallMemberFunctions(true);
+            if (gameObject.activeSelf)
+                CallMemberFunctions(true);
         }
 
         void OnDisable() {
-            CallMemberFunctions(false);
+            if (!gameObject.activeSelf)
+                CallMemberFunctions(false);
         }
     }
 }

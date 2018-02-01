@@ -12,7 +12,7 @@ namespace VBM {
 
     [System.Serializable]
     public class AnimatorPropertyBinding : PropertyBinding {
-        public Animator animator;
+        public Animator component;
         public string parameterName;
         public AnimatorPropertyType type;
 
@@ -24,19 +24,18 @@ namespace VBM {
         }
 
         public override void OnPropertyChange(object value) {
-            Debug.Log("parametername " + value);
             switch (type) {
                 case AnimatorPropertyType.Trigger:
-                    animator.SetTrigger(parameterId);
+                    component.SetTrigger(parameterId);
                     break;
                 case AnimatorPropertyType.Bool:
-                    animator.SetBool(parameterId, (bool) value);
+                    component.SetBool(parameterId, (bool) value);
                     break;
                 case AnimatorPropertyType.Int:
-                    animator.SetInteger(parameterId, (int) value);
+                    component.SetInteger(parameterId, (int) value);
                     break;
                 case AnimatorPropertyType.Float:
-                    animator.SetFloat(parameterId, (float) value);
+                    component.SetFloat(parameterId, (float) value);
                     break;
             }
         }

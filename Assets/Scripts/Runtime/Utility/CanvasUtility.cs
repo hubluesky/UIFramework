@@ -8,7 +8,7 @@ namespace VBM {
             // Create uiroot transform
             GameObject uiRoot = new GameObject("UIRoot");
             uiRoot.layer = LayerMask.NameToLayer("UI");
-            uiRoot.AddComponent<RectTransform>();
+            // uiRoot.AddComponent<Transform>();
             // Create ui camera
             GameObject uiCamera = new GameObject("UICamera");
             uiCamera.layer = LayerMask.NameToLayer("UI");
@@ -17,14 +17,13 @@ namespace VBM {
             Camera camera = uiCamera.AddComponent<Camera>();
             camera.clearFlags = CameraClearFlags.Depth;
             camera.orthographic = true;
-            camera.farClipPlane = 200f;
+            camera.nearClipPlane = 1f;
+            camera.farClipPlane = 100f;
             camera.cullingMask = 1 << 5;
-            camera.nearClipPlane = -50f;
-            camera.farClipPlane = 50f;
-            uiCamera.AddComponent<AudioListener>();
             uiCamera.AddComponent<GUILayer>();
             // Create screen space camera canvas
             GameObject uiCanvas = new GameObject("RootCanvas");
+            uiCanvas.layer = LayerMask.NameToLayer("UI");
             uiCanvas.transform.SetParent(uiRoot.transform, false);
             Canvas canvas = uiCanvas.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceCamera;

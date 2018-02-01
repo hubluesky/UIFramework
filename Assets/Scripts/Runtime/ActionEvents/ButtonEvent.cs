@@ -9,12 +9,10 @@ namespace VBM {
         public override Type ParameterType { get { return null; } }
 
         void Start() {
-            if (viewModelBinding == null || viewModelBinding.model == null) {
-                Debug.LogWarning("Button event binding failed! the viewModelBinding model is null" + name);
-                return;
+            if (CheckViewModelBinding()) {
+                button = GetComponent<Button>();
+                button.onClick.AddListener(OnEventChanged);
             }
-            button = GetComponent<Button>();
-            button.onClick.AddListener(OnEventChanged);
         }
 
         void OnDestroy() {

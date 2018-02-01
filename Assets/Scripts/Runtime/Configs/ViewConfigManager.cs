@@ -23,6 +23,10 @@ namespace VBM {
             configMap.Remove(name);
         }
 
+        public ViewConfig GetViewConfig(System.Enum value) {
+            return GetViewConfig(value.ToString());
+        }
+
         public ViewConfig GetViewConfig(string name) {
             ViewConfig config;
             if (configMap.TryGetValue(name, out config))

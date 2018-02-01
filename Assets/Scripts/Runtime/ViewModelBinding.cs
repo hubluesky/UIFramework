@@ -8,8 +8,13 @@ namespace VBM {
         class PropertiesBinding {
             public GraphicColorPropertyBinding[] graphicColorArray = null;
             public ImagePropertyBinding[] imageSpriteArray = null;
+            public ImageFillAmountPropertyBinding[] imageFillAmountArray = null;
+            public SliderValuePropertyBinding[] sliderValueArray = null;
             public TextPropertyBinding[] textLabelArray = null;
+            public InputFieldPropertyBinding[] inputFieldArray = null;
             public TogglePropertyBinding[] toggleIsOnArray = null;
+            public BehaviourEnabledPropertyBinding[] behaviourEnabledArray = null;
+            public GameObjectActivePropertyBinding[] gameObjectActiveArray = null;
             public AnimatorPropertyBinding[] animatorParametersArray = null;
             public ReflectPropertyBinding[] reflectPropertyArray = null;
             public ListPropertyBinding[] listPropertyArray = null;
@@ -20,9 +25,19 @@ namespace VBM {
                     list.Add(binding);
                 foreach (PropertyBinding binding in imageSpriteArray)
                     list.Add(binding);
+                foreach (PropertyBinding binding in imageFillAmountArray)
+                    list.Add(binding);
+                foreach (PropertyBinding binding in sliderValueArray)
+                    list.Add(binding);
                 foreach (PropertyBinding binding in textLabelArray)
                     list.Add(binding);
+                foreach (PropertyBinding binding in inputFieldArray)
+                    list.Add(binding);
                 foreach (PropertyBinding binding in toggleIsOnArray)
+                    list.Add(binding);
+                foreach (PropertyBinding binding in behaviourEnabledArray)
+                    list.Add(binding);
+                foreach (PropertyBinding binding in gameObjectActiveArray)
                     list.Add(binding);
                 foreach (PropertyBinding binding in animatorParametersArray)
                     list.Add(binding);
@@ -48,9 +63,10 @@ namespace VBM {
         void Awake() {
             if (propertiesBinding != null)
                 bindingList = propertiesBinding.InitBindingList();
+            InitModel();
         }
 
-        void Start() {
+        void InitModel() {
             if (model == null) {
                 if (parentBinding == null) {
                     model = ModelManager.Instance.GetModel(modelUniqueId);
@@ -61,12 +77,15 @@ namespace VBM {
                     }
                     model = parentBinding.model.GetProperty<Model>(modelUniqueId);
                 }
-                if (model == null) {
-                    Debug.LogWarningFormat("Get model {0} falied! {1} view bind model failed", modelUniqueId, name);
-                    return;
-                }
+                
+                if (model != null)
+                    SetModel(model);
+            }
+        }
 
-                SetModel(model);
+        void Start() {
+            if (model == null) {
+                Debug.LogWarningFormat("Get model {0} falied! {1} view bind model failed", modelUniqueId, name);
             }
         }
 

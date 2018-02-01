@@ -8,12 +8,10 @@ namespace VBM {
         public override System.Type ParameterType { get { return typeof(string); } }
 
         void Start() {
-            if (viewModelBinding == null || viewModelBinding.model == null) {
-                Debug.LogWarning("Input Field end event binding failed! the viewModelBinding model is null" + name);
-                return;
+            if (CheckViewModelBinding()) {
+                inputField = GetComponent<InputField>();
+                inputField.onValueChanged.AddListener(OnEventChanged);
             }
-            inputField = GetComponent<InputField>();
-            inputField.onValueChanged.AddListener(OnEventChanged);
         }
 
         void OnDestroy() {

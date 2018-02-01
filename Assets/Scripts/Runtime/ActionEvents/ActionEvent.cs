@@ -8,6 +8,14 @@ namespace VBM {
 
         public abstract System.Type ParameterType { get; }
 
+        public bool CheckViewModelBinding() {
+            if (viewModelBinding.model == null) {
+                Debug.LogWarning("Slider event binding failed! the viewModelBinding model is null" + name);
+                return false;
+            }
+            return true;
+        }
+
         public void CallMemberFunctions() {
             foreach (string memberName in memberNameArray) {
                 System.Action function = viewModelBinding.model.GetFunction(memberName);

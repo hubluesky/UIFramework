@@ -15,6 +15,12 @@ namespace VBMEditor {
 
         protected virtual void OnEnable() {
             bindingProperty = serializedObject.FindProperty("viewModelBinding");
+            if (bindingProperty.objectReferenceValue == null) {
+                ActionEvent actionEvent = serializedObject.targetObject as ActionEvent;
+                bindingProperty.objectReferenceValue = actionEvent.GetComponentInParent<ViewModelBinding>();
+                serializedObject.ApplyModifiedProperties();
+            }
+
             SerializedProperty memberNameProperty = serializedObject.FindProperty("memberNameArray");
             memberDataList = new ReorderableList(serializedObject, memberNameProperty, true, true, true, true);
             memberDataList.drawHeaderCallback += DrawMemberHeader;
