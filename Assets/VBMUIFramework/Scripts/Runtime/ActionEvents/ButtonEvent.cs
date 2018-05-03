@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace VBM {
-    [RequireComponent(typeof(Button))]
+    [RequireComponent(typeof(Button)), AddComponentMenu("VBMUIFramework/ActionEvents/ButtonEvent")]
     public class ButtonEvent : ActionEvent {
         private Button button;
         public override Type ParameterType { get { return null; } }

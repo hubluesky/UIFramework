@@ -64,15 +64,63 @@ namespace VBM {
             return memberList;
         }
 
-        public static System.Delegate GetMemberFunction(object obj, string memberName) {
+        public static System.Action GetMemberFunction(object obj, string memberName) {
             System.Type type = obj.GetType();
             MethodInfo methodInfo = type.GetMethod(memberName, bindingAttr);
             if (methodInfo == null) {
                 Debug.LogWarning("Action event get method failed!" + memberName);
                 return null;
             } else {
-                return System.Delegate.CreateDelegate(typeof(System.Action), obj, methodInfo);
+                return System.Delegate.CreateDelegate(typeof(System.Action), obj, methodInfo) as System.Action;
             }
+        }
+
+        public static System.Delegate GetMemberFunction(object obj, string memberName, System.Type paramType) {
+            System.Type type = obj.GetType();
+            MemberInfo[] memberInfo = type.GetMember(memberName, bindingAttr);
+            if (memberInfo == null || memberInfo.Length == 0) {
+                Debug.LogWarning("Action event get member failed!" + memberName);
+                return null;
+            }
+            switch (memberInfo[0].MemberType) {
+                case MemberTypes.Field:
+                    FieldInfo fieldInfo = memberInfo[0] as FieldInfo;
+                    if (fieldInfo == null) {
+                        Debug.LogWarning("Action event get field failed!" + memberName);
+                    } else {
+                        System.Action<object> function = (value) => fieldInfo.SetValue(obj, value);
+                        return function;
+                    }
+                    break;
+                case MemberTypes.Property:
+                    PropertyInfo propertyInfo = memberInfo[0] as PropertyInfo;
+                    if (propertyInfo == null) {
+                        Debug.LogWarning("Action event get property failed!" + memberName);
+                    } else {
+                        System.Type actionType = typeof(System.Action).MakeGenericType(paramType);
+                        return System.Delegate.CreateDelegate(actionType, obj, propertyInfo.GetSetMethod());
+                    }
+                    break;
+                case MemberTypes.Method:
+                    MethodInfo methodInfo = memberInfo[0] as MethodInfo;
+                    if (methodInfo == null) {
+                        Debug.LogWarning("Action event get method failed!" + memberName);
+                    } else {
+                        if (methodInfo.GetParameters().Length == 0) {
+                            System.Action function = System.Delegate.CreateDelegate(typeof(System.Action), obj, methodInfo) as System.Action;
+                            System.Action<object> funcAdapter = (t) => function();
+                            return funcAdapter;
+                        } else {
+                            System.Type actionType = typeof(System.Action<>).MakeGenericType(paramType);
+                            return System.Delegate.CreateDelegate(actionType, obj, methodInfo);
+                        }
+                    }
+                    break;
+                default:
+                    Debug.LogWarningFormat("Action event call member function failed! unknown member type {0} {1}", memberInfo[0].MemberType, memberName);
+                    break;
+            }
+            return null;
         }
 
         public static System.Delegate GetMemberFunction<T>(object obj, string memberName) {

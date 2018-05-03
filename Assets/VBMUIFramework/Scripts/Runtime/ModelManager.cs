@@ -5,6 +5,15 @@ namespace VBM {
     public sealed class ModelManager : Singleton<ModelManager> {
         private Dictionary<string, IModel> modelMap = new Dictionary<string, IModel>();
 
+        public IModel[] GetAllModels() {
+            IModel[] models = new IModel[modelMap.Count];
+            int i = 0;
+            foreach(var item in modelMap) {
+                models[i++] = item.Value;
+            }
+            return models;
+        }
+
         public T CreateModel<T>() where T : IModel, new() {
             return CreateModel<T>(typeof(T).Name);
         }
@@ -15,16 +24,16 @@ namespace VBM {
             return model;
         }
 
-        public void RegisterModel<T>(T model) where T : IModel {
-            RegisterModel(typeof(T).Name, model);
+        public void RegisterModel<T>(T model, bool replaceIfExist = false) where T : IModel {
+            RegisterModel(typeof(T).Name, model, replaceIfExist);
         }
 
-        public void RegisterModel(string uniqueId, IModel model) {
-            if (modelMap.ContainsKey(uniqueId)) {
+        public void RegisterModel(string uniqueId, IModel model, bool replaceIfExist = false) {
+            if (!replaceIfExist && modelMap.ContainsKey(uniqueId)) {
                 Debug.LogWarningFormat("Register model failed! the {0} model had ben register.", uniqueId);
                 return;
             }
-            modelMap.Add(uniqueId, model);
+            modelMap[uniqueId] = model;
         }
 
         public bool UnregisterModel(IModel model) {

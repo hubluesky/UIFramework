@@ -4,12 +4,13 @@ using UnityEngine.UI;
 
 namespace VBM {
 
-    [RequireComponent(typeof(Button))]
+    [RequireComponent(typeof(Button)), AddComponentMenu("VBMUIFramework/ActionEvents/HideViewEvent")]
     public class HideViewEvent : MonoBehaviour {
-        public ViewModelBinding viewModelBinding;
+        private ViewModelBinding viewModelBinding;
         private Button button;
 
         void Start() {
+            viewModelBinding = GetComponentInParent<ViewModelBinding>();
             if (viewModelBinding == null || viewModelBinding.model == null) {
                 Debug.LogWarning("Hide view event binding failed! the viewModelBinding model is null" + name);
                 return;

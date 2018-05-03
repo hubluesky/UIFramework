@@ -19,6 +19,14 @@ namespace VBM {
             set { list[index] = value; }
         }
 
+        public IModel Get(int index) {
+            return list[index];
+        }
+
+        public T Get<T>(int index) where T : class, IModel {
+            return list[index] as T;
+        }
+
         public void Add(IModel item) {
             list.Add(item);
             if (elementAdded != null)
@@ -49,6 +57,7 @@ namespace VBM {
         }
 
         public void RemoveAt(int index) {
+            if(index < 0 || index >= list.Count) return;
             list.RemoveAt(index);
             if (elementRemoved != null)
                 elementRemoved(index);

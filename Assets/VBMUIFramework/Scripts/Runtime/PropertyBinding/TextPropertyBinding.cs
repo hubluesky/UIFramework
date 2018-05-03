@@ -6,7 +6,7 @@ namespace VBM {
         public Text component;
 
         public override void OnPropertyChange(object value) {
-            component.text = value as string;
+            component.text = value != null ? value.ToString() : string.Empty;
         }
     }
 }

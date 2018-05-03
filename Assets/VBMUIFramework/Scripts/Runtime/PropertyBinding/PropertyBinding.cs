@@ -1,28 +1,31 @@
+using System.Reflection;
 using UnityEngine;
 
 namespace VBM {
-    public abstract class PropertyBinding : ISerializationCallbackReceiver {
+    public abstract class PropertyBinding {
+        [PropertyBindingName]
         public string propertyName;
-        public string converterType;
-        public PropertyConverter converter { get; set; }
-        public bool refresh { get; set; }
+        [MethodActionAttribute(BindingFlags.Static | BindingFlags.Public, typeof(PropertyConverterAttribute))]
+        public MethodAction converter;
+        public bool refresh { get; internal set; }
+        public IModel model { get; private set; }
 
         public void SetProperty(object value) {
-            OnPropertyChange(value != null && converter != null ? converter.Convert(value) : value);
+            OnPropertyChange(Converter(model, value));
+        }
+
+        public object Converter(IModel model, object bindingValue) {
+            if (converter == null || string.IsNullOrEmpty(converter.methodName)) return bindingValue;
+            return converter.Invoke(model);
+        }
+
+        public void SetModel(IModel model) {
+            this.model = model;
         }
 
         public abstract void OnPropertyChange(object value);
 
-        public virtual void OnBeforeSerialize() { }
-
-        public virtual void OnAfterDeserialize() {
-            if (!string.IsNullOrEmpty(converterType)) {
-                System.Type type = System.Type.GetType(converterType);
-                if (type == null)
-                    Debug.LogWarning("Deserialize convertype type failed! " + converterType);
-                else
-                    converter = System.Activator.CreateInstance(type) as PropertyConverter;
-            }
-        }
+        public virtual void Initialized() { }
+        public virtual void Finalized() { }
     }
 }

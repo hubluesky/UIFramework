@@ -88,5 +88,9 @@ namespace VBM.Reflection {
             }
             return list;
         }
+
+        public static object GetDefault(Type type) {
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
+        }
     }
 }

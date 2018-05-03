@@ -22,11 +22,13 @@ namespace VBM {
             return CreateView<View>(uniqueId, config);
         }
 
-        public T CreateView<T>(ViewConfig config) where T : View, new() {
-            return CreateView<T>(config.name, config);
+        public T CreateView<T>(ViewConfig config) where T : View,
+        new() {
+            return CreateView<T>(config.viewName, config);
         }
 
-        public T CreateView<T>(string uniqueId, ViewConfig config) where T : View, new() {
+        public T CreateView<T>(string uniqueId, ViewConfig config) where T : View,
+        new() {
             if (viewMap.ContainsKey(uniqueId)) {
                 Debug.LogError("Create view failed! The uniqueId had contains " + uniqueId);
                 return null;
@@ -54,9 +56,13 @@ namespace VBM {
         public void InitCanvasLayers(Canvas canvas, System.Type enumType) {
             rootCanvas = canvas;
             foreach (var layer in System.Enum.GetValues(enumType)) {
-                GameObject layerObject = CanvasUtility.CreateLayer(canvas.transform, layer.ToString());
-                viewLayerList.Add(new LayerTransform() { layer = (int) layer, transform = layerObject.transform });
+            GameObject layerObject = CanvasUtility.CreateLayer(canvas.transform, layer.ToString());
+            viewLayerList.Add(new LayerTransform() { layer = (int) layer, transform = layerObject.transform });
             }
+        }
+
+        public Transform GetLayerTransform(System.Enum layer) {
+            return GetLayerTransform(System.Convert.ToInt32(layer));
         }
 
         public Transform GetLayerTransform(int layer) {
@@ -68,18 +74,26 @@ namespace VBM {
         }
 
         public void ShowView<T>() where T : IModel {
-            View view = GetView(typeof(T).Name);
-            if(view == null){
-                Debug.LogWarning("Show view failed! Have not enum " + typeof(T).Name);
+            ShowView(typeof(T).Name);
+        }
+
+        public void ShowView(string viewName) {
+            View view = GetView(viewName);
+            if (view == null) {
+                Debug.LogWarning("Show view failed! Have not view " + viewName);
                 return;
             }
             view.Show();
         }
 
         public void HideView<T>() where T : IModel {
-            View view = GetView(typeof(T).Name);
-            if(view == null) {
-                Debug.LogWarning("Hide view failed! Have not enum " + typeof(T).Name);
+            HideView(typeof(T).Name);
+        }
+
+        public void HideView(string vieName)  {
+            View view = GetView(vieName);
+            if (view == null) {
+                Debug.LogWarning("Hide view failed! Have not view " + vieName);
                 return;
             }
             view.Hide();
@@ -96,7 +110,7 @@ namespace VBM {
         internal void ShowView(View view) {
             int index = viewLayerList.FindIndex((item) => item.layer == view.config.layer);
             if (index == -1) {
-                Debug.LogWarningFormat("Show view {0} failed! Have not include layer {1}", view.config.name, view.config.layer);
+                Debug.LogWarningFormat("Show view {0} failed! Have not include layer {1}", view.config.viewName, view.config.layer);
                 return;
             }
 
@@ -114,6 +128,8 @@ namespace VBM {
                             if (!viewShowStackMap.TryGetValue(childView.config.layer, out stack))
                                 stack = new Stack<View>();
                             stack.Push(childView);
+                        } else if (childView.config.hideRule == ViewHideRule.DestroyAsset) {
+                            childView.DestroyAsset();
                         }
                     }
                     break;

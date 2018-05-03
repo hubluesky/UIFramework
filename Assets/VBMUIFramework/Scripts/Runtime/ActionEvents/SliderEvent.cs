@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace VBM {
-    [RequireComponent(typeof(Slider))]
+    [RequireComponent(typeof(Slider)), AddComponentMenu("VBMUIFramework/ActionEvents/SliderEvent")]
     public class SliderEvent : ActionEvent {
         private Slider slider;
         public override Type ParameterType { get { return typeof(float); } }

@@ -13,6 +13,7 @@ namespace VBM {
             public TextPropertyBinding[] textLabelArray = null;
             public InputFieldPropertyBinding[] inputFieldArray = null;
             public TogglePropertyBinding[] toggleIsOnArray = null;
+            public SelectableInteractableBinding[] selectableInteractableArray = null;
             public BehaviourEnabledPropertyBinding[] behaviourEnabledArray = null;
             public GameObjectActivePropertyBinding[] gameObjectActiveArray = null;
             public AnimatorPropertyBinding[] animatorParametersArray = null;
@@ -21,6 +22,8 @@ namespace VBM {
 
             public List<PropertyBinding> InitBindingList() {
                 List<PropertyBinding> list = new List<PropertyBinding>();
+                foreach (PropertyBinding binding in listPropertyArray)
+                    list.Add(binding);
                 foreach (PropertyBinding binding in graphicColorArray)
                     list.Add(binding);
                 foreach (PropertyBinding binding in imageSpriteArray)
@@ -35,6 +38,8 @@ namespace VBM {
                     list.Add(binding);
                 foreach (PropertyBinding binding in toggleIsOnArray)
                     list.Add(binding);
+                foreach (PropertyBinding binding in selectableInteractableArray)
+                    list.Add(binding);
                 foreach (PropertyBinding binding in behaviourEnabledArray)
                     list.Add(binding);
                 foreach (PropertyBinding binding in gameObjectActiveArray)
@@ -42,8 +47,6 @@ namespace VBM {
                 foreach (PropertyBinding binding in animatorParametersArray)
                     list.Add(binding);
                 foreach (PropertyBinding binding in reflectPropertyArray)
-                    list.Add(binding);
-                foreach (PropertyBinding binding in listPropertyArray)
                     list.Add(binding);
                 return list;
             }
@@ -59,10 +62,13 @@ namespace VBM {
         public IModel model { get; protected set; }
         public View view { get; set; }
         public string modelId { get { return modelUniqueId; } }
+        public event System.Action<IModel> BindedModelEvent;
 
         void Awake() {
             if (propertiesBinding != null)
                 bindingList = propertiesBinding.InitBindingList();
+            foreach (PropertyBinding binding in bindingList)
+                binding.Initialized();
             InitModel();
         }
 
@@ -77,7 +83,7 @@ namespace VBM {
                     }
                     model = parentBinding.model.GetProperty<IModel>(modelUniqueId);
                 }
-                
+
                 if (model != null)
                     SetModel(model);
             }
@@ -96,11 +102,15 @@ namespace VBM {
             this.model = model;
 
             foreach (PropertyBinding binding in bindingList) {
+                binding.SetModel(model);
                 binding.refresh = true;
             }
 
             if (isActiveAndEnabled)
                 RefreshBindingPropertys();
+
+            if (BindedModelEvent != null)
+                BindedModelEvent(model);
         }
 
         public void HideView() {
@@ -134,8 +144,11 @@ namespace VBM {
         }
 
         void OnDestroy() {
+            foreach (PropertyBinding binding in bindingList)
+                binding.Finalized();
             if (model != null)
                 model.propertyChanged -= PropertyChanged;
+            bindingList = null;
         }
     }
 }

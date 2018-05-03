@@ -10,7 +10,7 @@ namespace VBMEditor {
         [MenuItem("Assets/Create/View Config Asset")]
         static void CreateViewConfigs() {
             if (Selection.activeObject == null) {
-                EditorUtility.DisplayDialog("提示", "请选择要创建的路径", "确定");
+                EditorUtility.DisplayDialog("Prompt", "Please select the path to create", "OK");
                 return;
             }
 

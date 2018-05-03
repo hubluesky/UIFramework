@@ -11,15 +11,16 @@ namespace VBM {
     }
 
     [System.Serializable]
-    public class AnimatorPropertyBinding : PropertyBinding {
+    public class AnimatorPropertyBinding : PropertyBinding, ISerializationCallbackReceiver {
         public Animator component;
         public string parameterName;
         public AnimatorPropertyType type;
 
         private int parameterId;
 
-        public override void OnAfterDeserialize() {
-            base.OnAfterDeserialize();
+        public void OnBeforeSerialize() { }
+
+        public void OnAfterDeserialize() {
             parameterId = Animator.StringToHash(parameterName);
         }
 

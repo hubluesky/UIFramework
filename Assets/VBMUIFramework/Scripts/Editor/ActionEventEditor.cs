@@ -7,24 +7,28 @@ using VBM;
 using VBM.Reflection;
 
 namespace VBMEditor {
-    [CustomEditor(typeof(ActionEvent), true)]
+    [CustomEditor(typeof(ActionEvent), true), CanEditMultipleObjects]
     public class ActionEventEditor : Editor {
         protected SerializedProperty bindingProperty;
-        protected SerializedProperty memberNameProperty;
+        protected SerializedProperty methodProperty;
         protected ReorderableList memberDataList;
 
         protected virtual void OnEnable() {
             bindingProperty = serializedObject.FindProperty("viewModelBinding");
             if (bindingProperty.objectReferenceValue == null) {
-                ActionEvent actionEvent = serializedObject.targetObject as ActionEvent;
-                bindingProperty.objectReferenceValue = actionEvent.GetComponentInParent<ViewModelBinding>();
-                serializedObject.ApplyModifiedProperties();
+                AutoFindViewModelBinding(bindingProperty);
             }
 
-            SerializedProperty memberNameProperty = serializedObject.FindProperty("memberNameArray");
-            memberDataList = new ReorderableList(serializedObject, memberNameProperty, true, true, true, true);
+            SerializedProperty methodArrayProperty = serializedObject.FindProperty("methodArray");
+            memberDataList = new ReorderableList(serializedObject, methodArrayProperty, true, true, true, true);
             memberDataList.drawHeaderCallback += DrawMemberHeader;
             memberDataList.drawElementCallback += DrawMemberDataListElement;
+        }
+
+        protected virtual void AutoFindViewModelBinding(SerializedProperty bindingProperty) {
+            ActionEvent actionEvent = serializedObject.targetObject as ActionEvent;
+            bindingProperty.objectReferenceValue = actionEvent.GetComponentInParent<ViewModelBinding>();
+            serializedObject.ApplyModifiedProperties();
         }
 
         void DrawMemberHeader(Rect rect) {
@@ -37,74 +41,7 @@ namespace VBMEditor {
 
         void DrawMemberDataListElement(Rect rect, int index, bool isActive, bool isFocused) {
             SerializedProperty child = memberDataList.serializedProperty.GetArrayElementAtIndex(index);
-
-            if (GUI.Button(rect, child.stringValue, EditorStyles.popup)) {
-                this.memberNameProperty = child;
-                ShowAddMemberMenu(rect, bindingProperty.objectReferenceValue as ViewModelBinding, (target as ActionEvent).ParameterType);
-            }
-        }
-
-        void AddMemberMenu(GenericMenu menu, MemberInfo memberInfo, System.Type paramType) {
-            GUIContent content = new GUIContent(ReflectionMemberUtility.FormatMemberName(memberInfo));
-            if (paramType == null) {
-                if (memberInfo.MemberType == MemberTypes.Method) {
-                    MethodInfo methodInfo = memberInfo as MethodInfo;
-                    if (methodInfo.GetParameters().Length == 0) {
-                        menu.AddItem(content, false, OnAddMemberBinding, memberInfo);
-                        return;
-                    }
-                }
-            } else {
-                switch (memberInfo.MemberType) {
-                    case MemberTypes.Field:
-                        FieldInfo fieldInfo = memberInfo as FieldInfo;
-                        if (paramType.IsAssignableFrom(fieldInfo.FieldType)) {
-                            menu.AddItem(content, false, OnAddMemberBinding, memberInfo);
-                            return;
-                        }
-                        break;
-                    case MemberTypes.Property:
-                        PropertyInfo propertyInfo = memberInfo as PropertyInfo;
-                        if (paramType.IsAssignableFrom(propertyInfo.PropertyType)) {
-                            menu.AddItem(content, false, OnAddMemberBinding, memberInfo);
-                            return;
-                        }
-                        break;
-                    case MemberTypes.Method:
-                        MethodInfo methodInfo = memberInfo as MethodInfo;
-                        ParameterInfo[] parameters = methodInfo.GetParameters();
-                        if (parameters.Length == 0 || paramType.IsAssignableFrom(parameters[0].GetType())) {
-                            menu.AddItem(content, false, OnAddMemberBinding, memberInfo);
-                            return;
-                        }
-                        break;
-                }
-
-            }
-            menu.AddDisabledItem(content);
-        }
-
-        protected virtual void AddMembers(GenericMenu menu, string modelId, System.Type paramType) {
-            List<System.Type> modelTypeList = ReflectionUtility.GetModelTypeList();
-            System.Type type = modelTypeList.Find((t) => t.FullName == modelId);
-            if (type == null) return;
-
-            List<MemberInfo> memberInfoList = ReflectionMemberUtility.GetMembers(type);
-            foreach (MemberInfo memberInfo in memberInfoList) {
-                AddMemberMenu(menu, memberInfo, paramType);
-            }
-        }
-
-        void ShowAddMemberMenu(Rect rect, ViewModelBinding viewmodelBinding, System.Type paramType) {
-            GenericMenu menu = new GenericMenu();
-            AddMembers(menu, viewmodelBinding.modelId, paramType);
-            menu.DropDown(rect);
-        }
-
-        private void OnAddMemberBinding(object value) {
-            MemberInfo memberInfo = value as MemberInfo;
-            memberNameProperty.stringValue = memberInfo.Name;
-            memberNameProperty.serializedObject.ApplyModifiedProperties();
+            EditorGUI.PropertyField(rect, child);
         }
 
         public override void OnInspectorGUI() {

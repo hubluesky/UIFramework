@@ -7,11 +7,11 @@ namespace VBM {
         private Dictionary<string, ViewConfig> configMap = new Dictionary<string, ViewConfig>();
 
         public void AddConfig(ViewConfig config) {
-            if (configMap.ContainsKey(config.name)) {
-                Debug.LogWarningFormat("Add config falied! has same key {0} in view config manager.", config.name);
+            if (configMap.ContainsKey(config.viewName)) {
+                Debug.LogWarningFormat("Add config falied! has same key {0} in view config manager.", config.viewName);
                 return;
             }
-            configMap.Add(config.name, config);
+            configMap.Add(config.viewName, config);
         }
 
         public void AddConfigs(ViewConfig[] configs) {

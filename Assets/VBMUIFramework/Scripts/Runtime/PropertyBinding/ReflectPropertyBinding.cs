@@ -5,11 +5,16 @@ using UnityEngine.Events;
 namespace VBM {
     [System.Serializable]
     public class ReflectPropertyBinding : PropertyBinding {
-        public Component component;
-        public string memberName;
+        [System.Serializable]
+        public class ReflectMember {
+            public Component component;
+            public string memberName;
+        }
+
+        public ReflectMember reflectMember;
 
         public override void OnPropertyChange(object value) {
-            ReflectionMemberUtility.CallMemberFunction(component, memberName, value);
+            ReflectionMemberUtility.CallMemberFunction(reflectMember.component, reflectMember.memberName, value);
         }
     }
 }

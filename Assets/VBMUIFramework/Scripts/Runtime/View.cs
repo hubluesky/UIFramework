@@ -2,11 +2,14 @@ using UnityEngine;
 
 namespace VBM {
     public class View {
+        public event System.Action OnLoadAsset;
+        public event System.Action OnDestroyAsset;
+
         public ViewConfig config { get; internal set; }
         public Transform transform { get; protected set; }
 
         public virtual void SetViewAsset(GameObject gameObject) {
-            gameObject.name = config.name;
+            gameObject.name = config.viewName;
             this.transform = gameObject.transform;
             ViewModelBinding binding = gameObject.GetComponent<ViewModelBinding>();
             binding.view = this;
@@ -15,10 +18,15 @@ namespace VBM {
             objectEvent.onEnableEvent += OnShow;
             objectEvent.onDisableEvent += OnHide;
             objectEvent.onDestroyEvent += OnDestroyed;
+            if (OnLoadAsset != null)
+                OnLoadAsset();
+            ViewManager.Instance.ShowView(this);
         }
 
         public void DestroyAsset() {
             if (transform != null) {
+                if (OnDestroyAsset != null)
+                    OnDestroyAsset();
                 Object.Destroy(transform.gameObject);
                 transform = null;
             }
@@ -29,7 +37,10 @@ namespace VBM {
         }
 
         public virtual void Show() {
-            ViewManager.Instance.ShowView(this);
+            if (transform == null)
+                ViewManager.Instance.LoadViewAsset(this);
+            else
+                ViewManager.Instance.ShowView(this);
         }
 
         public virtual void Hide() {

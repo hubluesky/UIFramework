@@ -3,7 +3,7 @@ using UnityEngine;
 namespace VBM {
     [System.Serializable]
     public class ViewConfig {
-        public string name { get; internal set; }
+        public string viewName;
         public GameObject prefab;
         [PropertyToEnumDrawerAttribute]
         public int layer;

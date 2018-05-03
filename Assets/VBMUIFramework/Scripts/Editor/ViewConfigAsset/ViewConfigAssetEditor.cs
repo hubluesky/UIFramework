@@ -24,7 +24,19 @@ namespace VBMEditor {
         private void DrawElement(Rect rect, int index, bool isActive, bool isFocused) {
             EditorGUI.indentLevel++;
             SerializedProperty childProperty = list.serializedProperty.GetArrayElementAtIndex(index);
+            SerializedProperty prefabPropety = childProperty.FindPropertyRelative("prefab");
+            SerializedProperty viewNamePropety = childProperty.FindPropertyRelative("viewName");
+            bool isSetPrefab = prefabPropety.objectReferenceValue == null && string.IsNullOrEmpty(viewNamePropety.stringValue);
             EditorGUI.PropertyField(rect, childProperty, true);
+            if (isSetPrefab && prefabPropety.objectReferenceValue != null && string.IsNullOrEmpty(viewNamePropety.stringValue)) {
+                GameObject prefabObject = prefabPropety.objectReferenceValue as GameObject;
+                ViewModelBinding viewModelBinding = prefabObject.GetComponent<ViewModelBinding>();
+                if(viewModelBinding != null) {
+                    viewNamePropety.stringValue = viewModelBinding.modelId;
+                    viewNamePropety.serializedObject.ApplyModifiedProperties();
+                }
+            }
+
             EditorGUI.indentLevel--;
         }
 

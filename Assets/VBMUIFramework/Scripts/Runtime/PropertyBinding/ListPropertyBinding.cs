@@ -4,13 +4,8 @@ namespace VBM {
     [System.Serializable]
     public class ListPropertyBinding : PropertyBinding {
         public Transform componentList;
-        public ViewModelBinding componentElement;
+        public ViewModelBinding[] componentElements;
         protected ListModel listModel;
-
-        ~ListPropertyBinding() {
-            if (listModel != null)
-                UnbindList(listModel);
-        }
 
         public override void OnPropertyChange(object value) {
             ElementCleared();
@@ -21,6 +16,13 @@ namespace VBM {
             if (listModel != null) {
                 InitChilds();
                 BindList(listModel);
+            }
+        }
+
+        public override void Finalized() {
+            if (listModel != null) {
+                UnbindList(listModel);
+                listModel = null;
             }
         }
 
@@ -38,7 +40,7 @@ namespace VBM {
             listModel.elementInserted -= ElementInserted;
             listModel.elementSwaped -= ElementSwaped;
             listModel.elementRemoved -= ElementRemoved;
-            listModel.elementRemovRanged += ElementRemovRanged;
+            listModel.elementRemovRanged -= ElementRemovRanged;
             listModel.elementCleared -= ElementCleared;
         }
 
@@ -49,16 +51,46 @@ namespace VBM {
         }
 
         protected Transform CreateChild(IModel model, int index) {
-            Transform child;
-            if (index < componentList.childCount) {
-                child = componentList.GetChild(index);
-            } else {
-                child = Object.Instantiate(componentElement.transform, Vector3.zero, Quaternion.identity, componentList);
+            Transform child = CreateChildInCache(model);
+            if (child != null) {
+                child.SetSiblingIndex(index);
+                child.gameObject.SetActive(true);
+                ViewModelBinding binding = child.GetComponent<ViewModelBinding>();
+                binding.SetModel(model);
             }
-            child.gameObject.SetActive(true);
-            ViewModelBinding binding = child.GetComponent<ViewModelBinding>();
-            binding.SetModel(model);
             return child;
+        }
+
+        private Transform CreateChildInCache(IModel model) {
+            string modelUniqueId = model.GetType().Name;
+            foreach (Transform child in componentList) {
+                if (child.gameObject.activeSelf) continue;
+                ViewModelBinding binding = child.GetComponent<ViewModelBinding>();
+                if(binding == null) continue;
+                if (binding.modelId == modelUniqueId && model.CheckElementModel(binding))
+                    return child;
+            }
+
+            foreach (ViewModelBinding binding in componentElements) {
+                if (binding.modelId == modelUniqueId && model.CheckElementModel(binding)) {
+                    Transform child = Object.Instantiate(binding.transform, componentList);
+                    child.localPosition = Vector3.zero;
+                    child.localRotation = Quaternion.identity;
+                    return child;
+                }
+            }
+
+            Debug.LogWarningFormat("Create ComponentList {0} child {1} failed.", componentList, modelUniqueId);
+            return null;
+        }
+
+        protected Transform GetElement(IModel model) {
+            string modelUniqueId = model.GetType().Name;
+            foreach (ViewModelBinding binding in componentElements) {
+                if (binding.modelId == modelUniqueId && model.CheckElementModel(binding))
+                    return binding.transform;
+            }
+            return null;
         }
 
         protected void ElementAdded(IModel model) {
@@ -91,6 +123,8 @@ namespace VBM {
 
         protected void ElementCleared() {
             foreach (Transform transform in componentList) {
+                ViewModelBinding binding = transform.GetComponent<ViewModelBinding>();
+                if (binding == null) continue;
                 transform.gameObject.SetActive(false);
             }
         }

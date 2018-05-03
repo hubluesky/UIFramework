@@ -4,8 +4,8 @@ using UnityEngine;
 namespace VBM {
     public abstract class ActionEvent : MonoBehaviour {
         public ViewModelBinding viewModelBinding;
-        public string[] memberNameArray = new string[0];
-
+        public ActionEventMethod[] methodArray = new ActionEventMethod[0];
+        public MethodParameter parameter;
         public abstract System.Type ParameterType { get; }
 
         public bool CheckViewModelBinding() {
@@ -17,18 +17,28 @@ namespace VBM {
         }
 
         public void CallMemberFunctions() {
-            foreach (string memberName in memberNameArray) {
-                System.Action function = viewModelBinding.model.GetFunction(memberName);
-                if (function != null)
-                    function();
+            foreach (ActionEventMethod memberName in methodArray) {
+                if (memberName.parameterType != null) {
+                    System.Delegate function = viewModelBinding.model.GetFunctionParam1(memberName.methodName, memberName.parameterType);
+                    function.DynamicInvoke(memberName.parameterValue);
+                } else {
+                    System.Action function = viewModelBinding.model.GetFunction(memberName.methodName);
+                    if (function != null)
+                        function();
+                }
             }
         }
 
         public void CallMemberFunctions<T>(T value) {
-            foreach (string memberName in memberNameArray) {
-                System.Action<T> function = viewModelBinding.model.GetFunctionParam1<T>(memberName);
-                if (function != null)
-                    function(value);
+            foreach (ActionEventMethod memberName in methodArray) {
+                if (memberName.parameterType != null) {
+                    System.Delegate function = viewModelBinding.model.GetFunctionParam1(memberName.methodName, memberName.parameterType);
+                    function.DynamicInvoke(memberName.parameterValue);
+                } else {
+                    System.Action<T> function = viewModelBinding.model.GetFunctionParam1<T>(memberName.methodName);
+                    if (function != null)
+                        function(value);
+                }
             }
         }
     }

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace VBM {
-    [RequireComponent(typeof(Toggle))]
+    [RequireComponent(typeof(Toggle)), AddComponentMenu("VBMUIFramework/ActionEvents/ToggleEvent")]
     public class ToggleEvent : ActionEvent {
         private Toggle toggle;
         public override Type ParameterType { get { return typeof(bool); } }
