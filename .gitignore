@@ -34,3 +34,6 @@ sysinfo.txt
 *.unitypackage
 /.vscode
 /用户手册.docx
+/Assets/VBMUIFramework/OldExamples
+/Assets/VBMUIFramework/XLuaExamples
+/Assets/VBMUIFramework/Examples
