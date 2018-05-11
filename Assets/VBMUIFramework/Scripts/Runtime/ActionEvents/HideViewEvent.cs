@@ -15,6 +15,7 @@ namespace VBM {
                 Debug.LogWarning("Hide view event binding failed! the viewModelBinding model is null" + name);
                 return;
             }
+            viewModelBinding = viewModelBinding.GetRoot();
             button = GetComponent<Button>();
             button.onClick.AddListener(OnEventChanged);
         }

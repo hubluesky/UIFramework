@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace VBM {
@@ -10,6 +11,7 @@ namespace VBM {
         String,
         Enum,
         UnityObject,
+        Color,
     }
 
     [System.Serializable]
@@ -20,6 +22,7 @@ namespace VBM {
         public static readonly Type StringType = typeof(String);
         public static readonly Type EnumType = typeof(Enum);
         public static readonly Type UnityObjectType = typeof(Object);
+        public static readonly Type ColorType = typeof(Color);
 
         public bool boolParam;
         public int intParam;
@@ -27,6 +30,7 @@ namespace VBM {
         public string stringParam;
         public SerializableEnum enumParam;
         public Object objectParam;
+        public Color colorParam;
 
         public object GetParameterValue(MethodParameterType type) {
             switch (type) {
@@ -42,6 +46,8 @@ namespace VBM {
             return enumParam.enumObject;
             case MethodParameterType.UnityObject:
             return objectParam;
+            case MethodParameterType.Color:
+            return colorParam;
             default:
             return null;
             }
@@ -56,6 +62,8 @@ namespace VBM {
                 return floatParam;
             else if (parameterType == StringType)
                 return stringParam;
+            else if (parameterType == ColorType)
+                return colorParam;
             else if (EnumType.IsAssignableFrom(parameterType))
                 return System.Enum.ToObject(parameterType, intParam);
             else if (UnityObjectType.IsAssignableFrom(parameterType))

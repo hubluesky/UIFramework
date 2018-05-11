@@ -7,46 +7,11 @@ using VBM;
 using VBM.Reflection;
 
 namespace VBMEditor {
-    [CustomEditor(typeof(ViewModelBinding)), CanEditMultipleObjects]
+    [CustomEditor(typeof(ViewModelBinding), true), CanEditMultipleObjects]
     public class ViewModelBindingEditor : Editor {
-        protected List<System.Type> modelTypeList;
-
         private const string expandStatusText = " - Click Expand";
         private const string collapseStatusText = " - Click Collapse";
         private bool switchModelSelected;
-
-        public static ViewModelBindingEditor Instance { get; protected set; }
-
-        protected virtual void OnEnable() {
-            Instance = this;
-            modelTypeList = ReflectionUtility.GetModelTypeList();
-        }
-
-        public virtual int IndexOfModelProperty(string name) {
-            return modelTypeList.FindIndex((element) => { return element.FullName == name; });
-        }
-
-        public virtual List<PropertyInfo> GetModelPropertyList(int selected) {
-            List<PropertyInfo> propertyList = new List<PropertyInfo>();
-            ReflectionUtility.ForeachGetClassProperty(modelTypeList[selected], (propertyInfo) => {
-                if (propertyInfo.CanRead)
-                    propertyList.Add(propertyInfo);
-            });
-            return propertyList;
-        }
-
-        public virtual void AddPropertyInMenu(int index, GenericMenu menu, System.Type propertyType, System.Action<string> MenuFunction) {
-            List<PropertyInfo> propertyList = GetModelPropertyList(index);
-            foreach (PropertyInfo propertyInfo in propertyList) {
-                if (propertyType == null || propertyType.IsAssignableFrom(propertyInfo.PropertyType)) {
-                    menu.AddItem(new GUIContent(propertyInfo.Name), false, () => {
-                        MenuFunction(propertyInfo.Name);
-                    });
-                } else {
-                    menu.AddDisabledItem(new GUIContent(propertyInfo.Name));
-                }
-            }
-        }
 
         protected void DrawSelectedModel(SerializedProperty modelUniqueId) {
             if (GUILayout.Button(modelUniqueId.stringValue)) {
@@ -55,13 +20,13 @@ namespace VBMEditor {
         }
 
         protected void AddModelTypeMenus(SerializedProperty property, GenericMenu menu) {
-            foreach (System.Type type in modelTypeList) {
-                GUIContent content = new GUIContent(type.FullName);
-                menu.AddItem(content, false, () => {
-                    property.stringValue = type.FullName;
+            ModelReflection.instance.ForeachModelName((name)=>{
+                GUIContent content = new GUIContent(name);
+                menu.AddItem(content, name == property.stringValue, () => {
+                    property.stringValue = name;
                     serializedObject.ApplyModifiedProperties();
                 });
-            }
+            });
         }
 
         protected virtual void ShowAddMemberMenu(SerializedProperty property) {
@@ -88,7 +53,25 @@ namespace VBMEditor {
             SerializedProperty modelUniqueId = serializedObject.FindProperty("modelUniqueId");
             EditorGUILayout.PrefixLabel("Model");
             if (switchModelSelected) {
-                EditorGUILayout.PropertyField(modelUniqueId, GUIContent.none, null);
+                if (parentBinding.objectReferenceValue == null) {
+                    EditorGUILayout.PropertyField(modelUniqueId, GUIContent.none, null);
+                } else if (GUILayout.Button(modelUniqueId.stringValue, EditorStyles.popup)) {
+                    GenericMenu menu = new GenericMenu();
+                    menu.AddDisabledItem(new GUIContent("None"));
+                    ViewModelBinding parent = parentBinding.objectReferenceValue as ViewModelBinding;
+                    int index = ModelReflection.instance.IndexOfModel(parent.modelId);
+                    if (index != -1) {
+                        ModelReflection.instance.ForeachProperty(index, (name, type)=>{
+                            if (typeof(IModel).IsAssignableFrom(type)) {
+                                menu.AddItem(new GUIContent(name), name == modelUniqueId.stringValue, () => {
+                                    modelUniqueId.stringValue = name;
+                                    modelUniqueId.serializedObject.ApplyModifiedProperties();
+                                });
+                            }
+                        });
+                    }
+                    menu.ShowAsContext();
+                }
             } else {
                 if (GUILayout.Button(modelUniqueId.stringValue))
                     ShowAddMemberMenu(modelUniqueId);
@@ -105,9 +88,8 @@ namespace VBMEditor {
             EditorGUI.indentLevel--;
             EditorGUI.EndDisabledGroup();
 
-            if (EditorGUI.EndChangeCheck()) {
+            if (EditorGUI.EndChangeCheck())
                 serializedObject.ApplyModifiedProperties();
-            }
         }
 
         private void DrawPropertyBindingList(SerializedProperty bindingList) {

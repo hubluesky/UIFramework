@@ -8,6 +8,7 @@ namespace VBM {
             [PropertyToEnumDrawerAttribute]
             public int layer;
             public Transform transform;
+            public List<View> viewList;
         }
         private Dictionary<string, View> viewMap = new Dictionary<string, View>();
         private Dictionary<int, Stack<View>> viewShowStackMap = new Dictionary<int, Stack<View>>();
@@ -22,13 +23,11 @@ namespace VBM {
             return CreateView<View>(uniqueId, config);
         }
 
-        public T CreateView<T>(ViewConfig config) where T : View,
-        new() {
+        public T CreateView<T>(ViewConfig config) where T : View, new() {
             return CreateView<T>(config.viewName, config);
         }
 
-        public T CreateView<T>(string uniqueId, ViewConfig config) where T : View,
-        new() {
+        public T CreateView<T>(string uniqueId, ViewConfig config) where T : View, new() {
             if (viewMap.ContainsKey(uniqueId)) {
                 Debug.LogError("Create view failed! The uniqueId had contains " + uniqueId);
                 return null;
@@ -57,7 +56,7 @@ namespace VBM {
             rootCanvas = canvas;
             foreach (var layer in System.Enum.GetValues(enumType)) {
             GameObject layerObject = CanvasUtility.CreateLayer(canvas.transform, layer.ToString());
-            viewLayerList.Add(new LayerTransform() { layer = (int) layer, transform = layerObject.transform });
+            viewLayerList.Add(new LayerTransform() { layer = (int) layer, transform = layerObject.transform, viewList = new List<View>() });
             }
         }
 
@@ -90,7 +89,7 @@ namespace VBM {
             HideView(typeof(T).Name);
         }
 
-        public void HideView(string vieName)  {
+        public void HideView(string vieName) {
             View view = GetView(vieName);
             if (view == null) {
                 Debug.LogWarning("Hide view failed! Have not view " + vieName);
@@ -103,6 +102,8 @@ namespace VBM {
             foreach (Stack<View> stackView in viewShowStackMap.Values) {
                 stackView.Clear();
             }
+            foreach (LayerTransform layerTransform in viewLayerList)
+                layerTransform.viewList.Clear();
             foreach (View view in viewMap.Values)
                 view.DestroyAsset();
         }
@@ -114,31 +115,42 @@ namespace VBM {
                 return;
             }
 
-            Transform layerTransform = viewLayerList[index].transform;
+            LayerTransform layerTransform = viewLayerList[index];
             switch (view.config.showRule) {
-                case ViewShowRule.HideLayerView:
-                    for (int i = 0; i < layerTransform.childCount; i++) {
-                        Transform child = layerTransform.GetChild(i);
-                        if (!child.gameObject.activeSelf)
-                            continue;
-                        child.gameObject.SetActive(false);
-                        View childView = child.GetComponent<ViewModelBinding>().view;
-                        if (childView.config.hideRule == ViewHideRule.SaveToStack) {
-                            Stack<View> stack;
-                            if (!viewShowStackMap.TryGetValue(childView.config.layer, out stack))
-                                stack = new Stack<View>();
-                            stack.Push(childView);
-                        } else if (childView.config.hideRule == ViewHideRule.DestroyAsset) {
-                            childView.DestroyAsset();
-                        }
-                    }
+                case ViewShowRule.HideSameLayerView:
+                    HideLayerViews(layerTransform);
+                    break;
+                case ViewShowRule.HideLowLayerView:
+                    for (int i = index; i >= 0; i--)
+                        HideLayerViews(viewLayerList[i]);
                     break;
             }
-            if (view.transform.parent == layerTransform)
+            if (view.transform.parent == viewLayerList[index].transform)
                 view.transform.SetAsLastSibling();
             else
-                view.transform.SetParent(layerTransform, false);
+                view.transform.SetParent(viewLayerList[index].transform, false);
             view.transform.gameObject.SetActive(true);
+            layerTransform.viewList.Add(view);
+        }
+
+        private void HideLayerViews(LayerTransform layerTransform) {
+            for (int i = layerTransform.viewList.Count - 1; i >= 0; i--) {
+                View view = layerTransform.viewList[i];
+                if (view.transform == null || !view.transform.gameObject.activeSelf) continue;
+                view.transform.gameObject.SetActive(false);
+                layerTransform.viewList.RemoveAt(i);
+
+                if (view.config.hideRule == ViewHideRule.SaveToStack) {
+                    Stack<View> stack;
+                    if (!viewShowStackMap.TryGetValue(view.config.layer, out stack)) {
+                        stack = new Stack<View>();
+                        viewShowStackMap.Add(view.config.layer, stack);
+                    }
+                    stack.Push(view);
+                } else if (view.config.hideRule == ViewHideRule.DestroyAsset) {
+                    view.DestroyAsset();
+                }
+            }
         }
 
         internal void HideView(View view) {
@@ -148,18 +160,32 @@ namespace VBM {
                 return;
             }
 
-            view.transform.gameObject.SetActive(false);
-            if (view.config.showRule == ViewShowRule.HideLayerView) {
-                Stack<View> stack;
-                if (viewShowStackMap.TryGetValue(view.config.layer, out stack)) {
-                    while (stack.Count > 0) {
-                        View stackView = stack.Pop();
-                        stackView.Show();
-                        if (stackView.config.showRule == ViewShowRule.HideLayerView)
-                            break;
-                    }
+            viewLayerList[index].viewList.Remove(view);
+            if (view.transform != null)
+                view.transform.gameObject.SetActive(false);
+
+            if (view.config.showRule == ViewShowRule.HideSameLayerView) {
+                ShowLayerViews(view.config.layer);
+            } else if (view.config.showRule == ViewShowRule.HideLowLayerView) {
+                for (int i = view.config.layer; i >= 0; i--) {
+                    if (ShowLayerViews(i))
+                        break;
                 }
             }
+        }
+
+        private bool ShowLayerViews(int layer) {
+            Stack<View> stack;
+            if (viewShowStackMap.TryGetValue(layer, out stack)) {
+                while (stack.Count > 0) {
+                    View stackView = stack.Pop();
+                    stackView.Show();
+                    viewLayerList[layer].viewList.Add(stackView);
+                    if (stackView.config.showRule == ViewShowRule.HideSameLayerView || stackView.config.showRule == ViewShowRule.HideLowLayerView)
+                        return true;
+                }
+            }
+            return false;
         }
     }
 }

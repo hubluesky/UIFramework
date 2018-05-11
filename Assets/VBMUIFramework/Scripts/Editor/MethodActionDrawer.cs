@@ -27,6 +27,7 @@ namespace VBMEditor {
             methodGenericTypeList.Add(MethodParameter.StringType);
             methodGenericTypeList.Add(MethodParameter.EnumType);
             methodGenericTypeList.Add(MethodParameter.UnityObjectType);
+            methodGenericTypeList.Add(MethodParameter.ColorType);
             methodGenericNames = new string[methodGenericTypeList.Count];
             for (int i = 0; i < methodGenericNames.Length; i++)
                 methodGenericNames[i] = methodGenericTypeList[i].Name;
@@ -131,27 +132,6 @@ namespace VBMEditor {
             EditorGUI.indentLevel--;
 
             EditorGUI.EndProperty();
-        }
-
-        public static Type GetEnumParameterType(ParameterInfo[] parameterInfos, SerializedProperty parametersProperty) {
-            for (int i = 0; i < parameterInfos.Length; i++) {
-                if (parameterInfos[i].ParameterType.IsGenericParameter) {
-                    SerializedProperty elementProperty = parametersProperty.GetArrayElementAtIndex(i);
-                    SerializedProperty passingNameProperty = elementProperty.FindPropertyRelative("passingName");
-                    if (string.IsNullOrEmpty(passingNameProperty.stringValue))
-                        continue;
-                    SerializedProperty modelUniqueId = parametersProperty.serializedObject.FindProperty("modelUniqueId");
-                    int indexModel = ViewModelBindingEditor.Instance.IndexOfModelProperty(modelUniqueId.stringValue);
-                    if (indexModel == -1)
-                        continue;
-
-                    List<PropertyInfo> propertyList = ViewModelBindingEditor.Instance.GetModelPropertyList(indexModel);
-                    PropertyInfo propertyInfo = propertyList.Find((x) => x.Name == passingNameProperty.stringValue);
-                    if (propertyInfo != null && MethodParameter.EnumType.IsAssignableFrom(propertyInfo.PropertyType))
-                        return propertyInfo.PropertyType;
-                }
-            }
-            return null;
         }
 
         public static Rect NextLieRect(Rect rect) {

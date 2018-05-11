@@ -63,6 +63,7 @@ namespace VBM {
         public View view { get; set; }
         public string modelId { get { return modelUniqueId; } }
         public event System.Action<IModel> BindedModelEvent;
+        private List<ViewModelBinding> childModelBinding = new List<ViewModelBinding>();
 
         void Awake() {
             if (propertiesBinding != null)
@@ -77,10 +78,12 @@ namespace VBM {
                 if (parentBinding == null) {
                     model = ModelManager.Instance.GetModel(modelUniqueId);
                 } else {
+                    parentBinding.AddChildViewModelBinding(this);
                     if (parentBinding.model == null) {
-                        Debug.LogWarningFormat("Get model {1} failed! {1} parent binding model is null.", modelUniqueId, parentBinding.name);
+                        // Debug.LogWarningFormat("Get model {1} failed! {1} parent binding model is null.", modelUniqueId, parentBinding.name);
                         return;
                     }
+
                     model = parentBinding.model.GetProperty<IModel>(modelUniqueId);
                 }
 
@@ -98,6 +101,12 @@ namespace VBM {
         public void SetModel(IModel model) {
             if (this.model != null)
                 this.model.propertyChanged -= PropertyChanged;
+
+            if (model == null) {
+                this.model = null;
+                return;
+            }
+
             model.propertyChanged += PropertyChanged;
             this.model = model;
 
@@ -121,12 +130,30 @@ namespace VBM {
             RefreshBindingPropertys();
         }
 
+        public ViewModelBinding GetRoot() {
+            if (parentBinding == null)
+                return this;
+            return parentBinding.GetRoot();
+        }
+
+        public void ForceRefreshBindingPropertys() {
+            if (bindingList == null || model == null) return;
+            foreach (PropertyBinding binding in bindingList) {
+                binding.SetProperty(model.GetProperty(binding.propertyName));
+                binding.refresh = false;
+            }
+        }
+
         void RefreshBindingPropertys() {
             if (bindingList == null || model == null) return;
             foreach (PropertyBinding binding in bindingList) {
                 if (!binding.refresh) continue;
                 binding.SetProperty(model.GetProperty(binding.propertyName));
                 binding.refresh = false;
+            }
+
+            foreach (ViewModelBinding binding in childModelBinding) {
+                binding.SetModel(model.GetProperty(binding.modelId) as IModel);
             }
         }
 
@@ -141,6 +168,20 @@ namespace VBM {
                     }
                 }
             }
+
+            foreach (ViewModelBinding binding in childModelBinding) {
+                if (binding.modelId == propertyName) {
+                    binding.SetModel(value as IModel);
+                }
+            }
+        }
+
+        void AddChildViewModelBinding(ViewModelBinding binding) {
+            childModelBinding.Add(binding);
+        }
+
+        void RemoveChildViewmodelBinding(ViewModelBinding binding) {
+            childModelBinding.Remove(binding);
         }
 
         void OnDestroy() {
@@ -148,6 +189,8 @@ namespace VBM {
                 binding.Finalized();
             if (model != null)
                 model.propertyChanged -= PropertyChanged;
+            if (parentBinding != null)
+                parentBinding.RemoveChildViewmodelBinding(this);
             bindingList = null;
         }
     }

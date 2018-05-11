@@ -56,6 +56,9 @@ namespace VBMEditor {
                     } else if (parameterEnumType == MethodParameterType.UnityObject && MethodParameter.UnityObjectType.IsAssignableFrom(parameterType)) {
                     SerializedProperty paramChildProperty = parameterProperty.FindPropertyRelative("objectParam");
                     EditorGUI.ObjectField(rectContent, paramChildProperty, parameterType, label);
+                    } else if (parameterEnumType == MethodParameterType.Color && parameterType.IsAssignableFrom(MethodParameter.ColorType)) {
+                    SerializedProperty paramChildProperty = parameterProperty.FindPropertyRelative("colorParam");
+                    EditorGUI.PropertyField(rectContent, paramChildProperty, label);
                     } else {
                     rectContent = EditorGUI.PrefixLabel(rectContent, label);
                     EditorGUI.HelpBox(rectContent, "Unkonwn Parameter Type", MessageType.Warning);
@@ -69,9 +72,13 @@ namespace VBMEditor {
         }
 
         public static void DrawPropertyBindingName(Rect rect, SerializedProperty property, GUIContent label, System.Type propertyType) {
+            SerializedProperty parentBinding = property.serializedObject.FindProperty("parentBinding");
+            ViewModelBinding viewModelBindig = parentBinding.objectReferenceValue as ViewModelBinding;
             SerializedProperty modelUniqueId = property.serializedObject.FindProperty("modelUniqueId");
-            int selected = ViewModelBindingEditor.Instance.IndexOfModelProperty(modelUniqueId.stringValue);
-            if (selected == -1) {
+
+            string parentName = viewModelBindig != null ? viewModelBindig.modelId : null;
+            bool checkedModel = ModelReflection.instance.CheckModelProperty(parentName, modelUniqueId.stringValue);
+            if (!checkedModel) {
                 Color oldColor = GUI.color;
                 GUI.color = Color.red;
                 EditorGUI.LabelField(rect, label, new GUIContent("Not Propertys"), EditorStyles.popup);
@@ -80,9 +87,15 @@ namespace VBMEditor {
                 rect = EditorGUI.PrefixLabel(rect, label);
                 if (GUI.Button(rect, property.stringValue, EditorStyles.popup)) {
                     GenericMenu menu = new GenericMenu();
-                    ViewModelBindingEditor.Instance.AddPropertyInMenu(selected, menu, propertyType, (name) => {
-                        property.stringValue = name;
-                        property.serializedObject.ApplyModifiedProperties();
+                    ModelReflection.instance.ForeachProperty(parentName, modelUniqueId.stringValue, (propertyName, type) => {
+                        if (propertyType == null || propertyType.IsAssignableFrom(type)) {
+                            menu.AddItem(new GUIContent(propertyName), propertyName == property.stringValue, () => {
+                                property.stringValue = propertyName;
+                                property.serializedObject.ApplyModifiedProperties();
+                            });
+                        } else {
+                            menu.AddDisabledItem(new GUIContent(propertyName));
+                        }
                     });
                     menu.DropDown(rect);
                 }
