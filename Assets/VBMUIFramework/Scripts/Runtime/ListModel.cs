@@ -12,7 +12,7 @@ namespace VBM {
 
         public int Count { get { return list.Count; } }
 
-        public IModel this [int index] {
+        public IModel this[int index] {
             get { return list[index]; }
             set { list[index] = value; }
         }
@@ -55,7 +55,7 @@ namespace VBM {
         }
 
         public void RemoveAt(int index) {
-            if(index < 0 || index >= list.Count) return;
+            if (index < 0 || index >= list.Count) return;
             if (elementRemoved != null)
                 elementRemoved(list[index]);
             list.RemoveAt(index);
@@ -63,7 +63,7 @@ namespace VBM {
 
         public void RemoveRange(int index, int count) {
             if (elementRemoved != null) {
-                for(int i = index; i < count; i++)
+                for (int i = index; i < count; i++)
                     elementRemoved(list[index]);
             }
             list.RemoveRange(index, count);
@@ -75,6 +75,21 @@ namespace VBM {
 
         public IModel Find(System.Predicate<IModel> match) {
             return list.Find(match);
+        }
+
+        public T Find<T>(System.Predicate<T> match) where T : class, IModel {
+            foreach (IModel model in list) {
+                T t = model as T;
+                if (match(t)) return t;
+            }
+            return null;
+        }
+
+        public int FindIndex<T>(System.Predicate<T> match) where T : class, IModel {
+            for (int i = 0; i < list.Count; i++) {
+                if (match(list[i] as T)) return i;
+            }
+            return -1;
         }
 
         public void Clear() {

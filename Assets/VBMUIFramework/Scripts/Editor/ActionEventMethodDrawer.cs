@@ -55,7 +55,7 @@ namespace VBMEditor {
                             paramChildProperty.intValue = System.Convert.ToInt32(value);
                     } else if (typeof(Object).IsAssignableFrom(parameterType)) {
                         SerializedProperty paramChildProperty = parameterProperty.FindPropertyRelative("objectParam");
-                        EditorGUI.ObjectField(paramRect, paramChildProperty, parameterType, GUIContent.none);
+                        paramChildProperty.objectReferenceValue = EditorGUI.ObjectField(paramRect, paramChildProperty.objectReferenceValue, parameterType, true);
                     } else {
                         EditorGUI.HelpBox(paramRect, "Unkonwn Parameter Type", MessageType.Warning);
                     }
@@ -96,7 +96,7 @@ namespace VBMEditor {
                         menu.AddItem(content, false, OnAddMemberBinding, new MenuContext(property, memberInfo));
                         return;
                     } else if (methodInfo.GetParameters().Length == 1) {
-                        menu.AddItem(content, false, OnAddMemberBinding, new MenuContext(property, memberInfo, methodInfo.GetParameters() [0].ParameterType));
+                        menu.AddItem(content, false, OnAddMemberBinding, new MenuContext(property, memberInfo, methodInfo.GetParameters()[0].ParameterType));
                         return;
                     }
                 }
@@ -140,7 +140,7 @@ namespace VBMEditor {
         }
 
         void OnAddMemberBinding(object value) {
-            MenuContext context = (MenuContext) value;
+            MenuContext context = (MenuContext)value;
             SerializedProperty methodName = context.property.FindPropertyRelative("methodName");
             SerializedProperty parameterType = context.property.FindPropertyRelative("parameterTypeName");
             methodName.stringValue = context.memberInfo.Name;

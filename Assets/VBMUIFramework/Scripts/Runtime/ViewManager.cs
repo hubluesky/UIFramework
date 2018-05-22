@@ -39,6 +39,7 @@ namespace VBM {
         }
 
         public void LoadViewAsset(View view) {
+            view.isLoadingAsset = true;
             view.config.LoadAsset(view.SetViewAsset);
         }
 

@@ -7,20 +7,30 @@ namespace VBM {
 
         public ViewConfig config { get; internal set; }
         public Transform transform { get; protected set; }
+        protected IModel model;
+        public bool isLoadingAsset { get; internal set; }
+        protected bool delayShow;
 
         public virtual void SetViewAsset(GameObject gameObject) {
             gameObject.name = config.viewName;
             this.transform = gameObject.transform;
             ViewModelBinding binding = gameObject.GetComponent<ViewModelBinding>();
-            binding.view = this;
+            if (binding != null) {
+                binding.view = this;
+                if (model != null)
+                    binding.SetModel(model);
+            }
             MonoBehaviourEvent objectEvent = gameObject.AddComponent<MonoBehaviourEvent>();
             objectEvent.onStartEvent += OnCreated;
             objectEvent.onEnableEvent += OnShow;
             objectEvent.onDisableEvent += OnHide;
             objectEvent.onDestroyEvent += OnDestroyed;
+            isLoadingAsset = false;
             if (OnLoadAsset != null)
                 OnLoadAsset();
-            ViewManager.Instance.ShowView(this);
+            if (delayShow)
+                Show();
+            delayShow = false;
         }
 
         public void DestroyAsset() {
@@ -32,19 +42,32 @@ namespace VBM {
             }
         }
 
+        public void SetModel(IModel model) {
+            this.model = model;
+            if (transform != null)
+                transform.GetComponent<ViewModelBinding>().SetModel(model);
+        }
+
         public bool IsShowing() {
             return transform != null && transform.gameObject.activeSelf;
         }
 
         public virtual void Show() {
-            if (transform == null)
-                ViewManager.Instance.LoadViewAsset(this);
-            else
+            if (transform == null) {
+                delayShow = true;
+                if (!isLoadingAsset)
+                    ViewManager.Instance.LoadViewAsset(this);
+            } else {
                 ViewManager.Instance.ShowView(this);
+            }
         }
 
         public virtual void Hide() {
-            ViewManager.Instance.HideView(this);
+            if (delayShow) {
+                delayShow = false;
+            } else {
+                ViewManager.Instance.HideView(this);
+            }
         }
 
         public virtual void OnCreated() { }

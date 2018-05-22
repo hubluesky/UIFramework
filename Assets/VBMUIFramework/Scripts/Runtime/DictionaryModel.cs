@@ -7,6 +7,9 @@ namespace VBM {
     public class DictionaryModel : Model {
         protected Dictionary<string, object> variableMap = new Dictionary<string, object>();
 
+        public Dictionary<string, object>.KeyCollection VariableNames { get { return variableMap.Keys; } }
+        public Dictionary<string, object>.ValueCollection VariableValues { get { return variableMap.Values; } }
+
         public override object GetProperty(string propertyName) {
             if (variableMap.ContainsKey(propertyName)) {
                 return variableMap[propertyName];

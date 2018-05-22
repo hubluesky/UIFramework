@@ -8,8 +8,18 @@ namespace VBM {
         public ViewModelBinding[] componentElements;
         protected List<ViewModelBinding> usedChildList = new List<ViewModelBinding>();
         protected List<ViewModelBinding> unusedChildList = new List<ViewModelBinding>();
+        public bool refresh { get; set; }
 
         void Start() { }
+
+        void OnEnable() {
+            if (!refresh) return;
+
+            if (listModel != null) {
+                ClearElements();
+                InitChilds();
+            }
+        }
 
         public virtual void Initialize() {
             foreach (ViewModelBinding binding in componentElements) {
@@ -78,10 +88,18 @@ namespace VBM {
         }
 
         protected virtual void OnElementAdded(IModel model) {
+            if (!gameObject.activeInHierarchy) {
+                refresh = true;
+                return;
+            }
             CreateChild(model);
         }
 
         protected virtual void OnElementRemoved(IModel model) {
+            if (!gameObject.activeInHierarchy) {
+                refresh = true;
+                return;
+            }
             for (int i = 0; i < usedChildList.Count; i++) {
                 if (usedChildList[i].model == model) {
                     BacktoCache(usedChildList[i]);
@@ -91,6 +109,14 @@ namespace VBM {
         }
 
         protected virtual void OnElementCleared() {
+            if (!gameObject.activeInHierarchy) {
+                refresh = true;
+                return;
+            }
+            ClearElements();
+        }
+
+        protected void ClearElements() {
             foreach (ViewModelBinding binding in usedChildList)
                 BacktoCache(binding);
             usedChildList.Clear();

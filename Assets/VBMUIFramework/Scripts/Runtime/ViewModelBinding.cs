@@ -93,7 +93,7 @@ namespace VBM {
         }
 
         void Start() {
-            if (model == null) {
+            if (model == null && !string.IsNullOrEmpty(modelUniqueId)) {
                 Debug.LogWarningFormat("Get model {0} falied! {1} view bind model failed", modelUniqueId, name);
             }
         }

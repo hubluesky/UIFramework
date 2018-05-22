@@ -5,13 +5,8 @@ namespace VBM {
     public sealed class ModelManager : Singleton<ModelManager> {
         private Dictionary<string, IModel> modelMap = new Dictionary<string, IModel>();
 
-        public IModel[] GetAllModels() {
-            IModel[] models = new IModel[modelMap.Count];
-            int i = 0;
-            foreach(var item in modelMap) {
-                models[i++] = item.Value;
-            }
-            return models;
+        public IEnumerable<IModel> GetModels() {
+            return modelMap.Values;
         }
 
         public T CreateModel<T>() where T : IModel, new() {
@@ -42,6 +37,14 @@ namespace VBM {
 
         public bool UnregisterModel(string uniqueId) {
             return modelMap.Remove(uniqueId);
+        }
+
+        public bool ContainsModel<T>() where T : class, IModel {
+            return ContainsModel(typeof(T).Name);
+        }
+
+        public bool ContainsModel(string uniqueId) {
+            return modelMap.ContainsKey(uniqueId);
         }
 
         public T GetModel<T>() where T : class, IModel {

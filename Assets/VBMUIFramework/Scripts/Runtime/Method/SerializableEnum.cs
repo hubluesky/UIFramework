@@ -13,7 +13,7 @@ namespace VBM {
 
         public void OnAfterDeserialize() {
             Type enumType = Type.GetType(this.enumType);
-            if (enumType != null && enumType.IsEnum)
+            if (enumType != null && enumType.IsEnum && !string.IsNullOrEmpty(enumValue))
                 enumObject = Enum.Parse(enumType, enumValue);
         }
     }

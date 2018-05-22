@@ -11,8 +11,8 @@ namespace VBM {
 
         void Start() {
             viewModelBinding = GetComponentInParent<ViewModelBinding>();
-            if (viewModelBinding == null || viewModelBinding.model == null) {
-                Debug.LogWarning("Hide view event binding failed! the viewModelBinding model is null" + name);
+            if (viewModelBinding == null) {
+                Debug.LogWarning("Hide view event binding failed! the viewModelBinding is null" + name);
                 return;
             }
             viewModelBinding = viewModelBinding.GetRoot();

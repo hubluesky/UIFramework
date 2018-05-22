@@ -16,7 +16,7 @@ namespace VBMEditor {
                 }
                 return true;
             });
-
+            enumTypeList.Sort((x, y) => x.AssemblyQualifiedName.CompareTo(y.AssemblyQualifiedName));
         }
 
         public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label) {
@@ -31,7 +31,7 @@ namespace VBMEditor {
             if (string.IsNullOrEmpty(enumTypeProperty.stringValue) || property.isExpanded) {
                 EditorGUI.BeginChangeCheck();
                 rectContent = EditorGUI.PrefixLabel(rectContent, label);
-                if(GUI.Button(rectContent, enumType != null ? enumType.Name : null)) {
+                if (GUI.Button(rectContent, enumType != null ? enumType.Name : null)) {
                     ShowEnumMenu(rectContent, enumTypeProperty);
                 }
             } else {
@@ -39,13 +39,13 @@ namespace VBMEditor {
                 System.Enum enumValue;
                 try {
                     enumValue = System.Enum.Parse(enumType, enumValueProperty.stringValue, true) as System.Enum;
-                } catch(System.Exception) {
+                } catch (System.Exception) {
                     enumValue = System.Enum.GetValues(enumType).GetValue(0) as System.Enum;
                     enumValueProperty.stringValue = System.Enum.GetName(enumType, enumValue);
                     enumTypeProperty.serializedObject.ApplyModifiedProperties();
                 }
                 enumValue = EditorGUI.EnumPopup(rectContent, label, enumValue);
-                if(EditorGUI.EndChangeCheck()) {
+                if (EditorGUI.EndChangeCheck()) {
                     enumValueProperty.stringValue = System.Enum.GetName(enumType, enumValue);
                     enumTypeProperty.serializedObject.ApplyModifiedProperties();
                 }
@@ -58,11 +58,11 @@ namespace VBMEditor {
 
         private void ShowEnumMenu(Rect rect, SerializedProperty enumTypeProperty) {
             GenericMenu enumTypeMenu = new GenericMenu();
-            foreach(System.Type enumType in enumTypeList) {
-                enumTypeMenu.AddItem(new GUIContent(enumType.FullName.Replace('.', '/')), false, ()=>{
+            foreach (System.Type enumType in enumTypeList) {
+                enumTypeMenu.AddItem(new GUIContent(enumType.FullName.Replace('.', '/')), false, () => {
                     enumTypeProperty.stringValue = enumType.AssemblyQualifiedName;
                     enumTypeProperty.serializedObject.ApplyModifiedProperties();
-                });   
+                });
             }
             enumTypeMenu.DropDown(rect);
         }

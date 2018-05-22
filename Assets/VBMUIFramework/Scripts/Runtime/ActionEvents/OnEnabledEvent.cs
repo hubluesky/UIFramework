@@ -2,8 +2,8 @@ using System;
 using UnityEngine;
 
 namespace VBM {
-    [AddComponentMenu("VBMUIFramework/ActionEvents/ActiveEvent")]
-    public class ActiveEvent : ActionEvent {
+    [AddComponentMenu("VBMUIFramework/ActionEvents/OnEnabledEvent")]
+    public class OnEnabledEvent : ActionEvent {
         public override Type ParameterType { get { return typeof(bool); } }
 
         void OnEnable() {
